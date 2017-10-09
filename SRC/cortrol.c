@@ -20,6 +20,8 @@
 *********************************************************************/
 
 #include "control.h"
+#include "CtrFile.h"
+
 #include "cmd_queue.h"
 #include "AD9833.h"
 #include <math.h>
@@ -195,7 +197,7 @@ s16 MidFilterSigned(s16* Array,u16 num )
 º¯ÊýÃû³Æ£ºvoid Phase_ValueFilter(u8 num)
 ¹¦    ÄÜ£ºÂË²¨´¦Àíº¯Êý,¶ÔÏàÎ»½øÐÐÂË²¨´¦Àí
 Ëµ    Ã÷£º
-Èë¿Ú²ÎÊý£ºÂË²¨½×Êýý£num(0¡¢1¡¢2¡¢3...20)
+Èë¿Ú²ÎÊý£ºÂË²¨½×Êýý?um(0¡¢1¡¢2¡¢3...20)
 ·µ»ØÖµ  £ºÎÞ
 ********************************************************************/
 void Phase_ValueFilter(u8 num)
@@ -223,7 +225,7 @@ void Phase_ValueFilter(u8 num)
 º¯ÊýÃû³Æ£ºvoid ADC1_ValueFilter(u8 num) ¹¦ÄÜÊÇµÃµ½²ÉÑùµÄµçÑ¹¡¢µçÁ÷Öµ
 ¹¦    ÄÜ£ºÂË²¨´¦Àíº¯Êý //²ÉÑù²¢¾­¹ýÖÐÖµÂË²¨¶øµÃµ½µÄµçÑ¹ºÍµçÁ÷Öµ£»
 Ëµ    Ã÷£º
-Èë¿Ú²ÎÊý£ºÂË²¨½×Êýý£num(0¡¢1¡¢2¡¢3...20)
+Èë¿Ú²ÎÊý£ºÂË²¨½×Êýý?um(0¡¢1¡¢2¡¢3...20)
 ·µ»ØÖµ  £ºÎÞ
 ********************************************************************/
 void ADC1_ValueFilter(u8 num)
@@ -504,7 +506,7 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 
 		if(Stop_Control_Flag == 1)
 		{
-			return 0;
+			return 1;
 		}
 
 		if(Current_Fre > (Start_Fre+Current_Buffer*(ProgressValue+1)))	   //½ø¶ÈÌõ¿ØÖÆ
@@ -732,8 +734,39 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 	AD9833_Init();
 	
 
-	return 1;
+	return 0;
 }
+
+/*****************************************************************
+* Ãû    ³Æ£º CampareandAlarm()
+* ¹¦    ÄÜ£º ¼ÆËãÖµÓëÉè¶¨Öµ±È½Ï£¬³¬ÏÞ±¨¾¯
+* Èë¿Ú²ÎÊý£ºuchar *vfrequent,uchar *vresistance,uchar *vcapacity,uchar *vinductor   
+* ³ö¿Ú²ÎÊý£º  0£ºÕý³£·¶Î§ÄÚ      			1£º³¬ÏÞ
+ *****************************************************************/
+
+ int CampareandAlarm(double vfrequent,double vresistance,double vcapacity,double vinductor)
+ {
+ 
+   if((vfrequent<min_freq)||(vfrequent>max_fre))
+   	{
+		return 1;
+   	}
+	else if((vresistance<min_freq)||(vresistance>max_fre))
+   	{
+		return 1;
+   	}
+	else if((vcapacity<min_freq)||(vcapacity>max_fre))
+   	{
+		return 1;
+   	}
+	else if((vinductor<min_freq)||(vinductor>max_fre))
+   	{
+		return 1;
+   	}
+   	else
+   		return 0;
+  
+ } 
 
 /**********************************************************************
 º¯ÊýÃû³Æ: void PhaseLock(void)
@@ -746,6 +779,14 @@ void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage)
 {
 //	u16 t;
 	if (Sweep(Start_Fre, End_Fre, Voltage) == 1)
+	{
+		Stop_Button();
+		Impandence_Buffer_Flag = 0;
+
+		GPIO_ResetBits(GPIOE,GPIO_Pin_15);
+    GPIO_SetBits(GPIOE,GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_10|GPIO_Pin_11|GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14);
+	}
+	else
 	{
 //		for(t=0;t<1000;t++)
 //		{
@@ -777,15 +818,12 @@ void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage)
 				break;
 			}
 		}
+		if(CampareandAlarm((double)Fre_Min,(double)XZ_Impandence/1000 * 1.14651,(double)C0,(double)L1 * 1.45396))
+			{
+				SetTextValue(0,8,"12");     //ÏÔÊ¾³¬ÏÞÐÅÏ¢
+		}
 		TIM_Cmd(TIM2, DISABLE);
-	}
-	else
-	{
-		Stop_Button();
-		Impandence_Buffer_Flag = 0;
-
-		GPIO_ResetBits(GPIOE,GPIO_Pin_15);
-    GPIO_SetBits(GPIOE,GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_10|GPIO_Pin_11|GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14);
+		
 	}
 }
 

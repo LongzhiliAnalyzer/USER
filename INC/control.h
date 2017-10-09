@@ -58,6 +58,7 @@ void Send_Cmd(void);
 void Impandence_Switch(void);
 u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value);
 void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage);
+int CampareandAlarm(double vfrequent,double vresistance,double vcapacity,double vinductor);
 
 void USART2_printf (char *fmt,...);
 void Send_Data_USB(void);

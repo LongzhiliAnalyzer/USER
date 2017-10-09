@@ -45,6 +45,27 @@
 enum {UNVISABLE,VISABLE};
 extern uint16 Ok1_Control_Flag;           //DGUT
 
+
+
+
+extern u32 start_fre;                       /*定义起始频率   */
+extern u32 end_fre;                         /*定义终止频率   */
+extern u32 dac_value;                       /*定义DAC初值    */
+extern u32 file_name;                   //DGUT定义文件名初值
+
+/*****液晶屏定义变量*****/
+extern u32 min_freq;                       /*定义起始频率   */
+extern u32 max_fre;                         /*定义终止频率   */
+extern u32 min_resis;                       /*定义最小电阻   */
+extern u32 max_resis;                         /*定义最大电阻   */
+extern u32 min_capac;                       /*定义最小电容*/
+extern u32 max_capac;                         /*定义最大电容   */
+extern u32 min_induc;                       /*定义最小电感   */
+extern u32 max_indut;                         /*定义最大电感   */
+
+
+
+
 void iniuserctr(void);
 void OnRecvChangeScreen(uint16_t screen_id);
 void OnRecvTouchXY(uint8_t press,uint16_t x,uint16_t y);
@@ -54,7 +75,7 @@ void OnRecvProgress(PCTRL_MSG msg,qsize size);
 void OnRecvSlider(PCTRL_MSG msg,qsize size);
 void OnRecvMeter(PCTRL_MSG msg,qsize size);
 void OnRecvAnimation(PCTRL_MSG msg,qsize size);
-void	OnRecCurrentScreen(PCTRL_MSG msg,qsize size);
+void OnRecCurrentScreen(PCTRL_MSG msg,qsize size);
 
 extern void Delayus(__IO uint32_t kCount);
 extern void OnRecvChangeScreen(uint16_t screen_id);

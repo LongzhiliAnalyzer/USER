@@ -38,6 +38,19 @@ uint16 Ok1_Control_Flag = 0;     //DGUT
 
 u32 start_fre = 0;                       /*定义起始频率   */
 u32 end_fre = 0;                         /*定义终止频率   */
+
+
+/*****液晶屏定义变量*****/
+u32 min_freq = 0;                       /*定义起始频率   */
+u32 max_fre = 0;                         /*定义终止频率   */
+u32 min_resis = 0;                       /*定义最小电阻   */
+u32 max_resis = 0;                         /*定义最大电阻   */
+u32 min_capac = 0;                       /*定义最小电容*/
+u32 max_capac = 0;                         /*定义最大电容   */
+u32 min_induc = 0;                       /*定义最小电感   */
+u32 max_indut = 0;                         /*定义最大电感   */
+
+
 u32 dac_value = 0;                       /*定义DAC初值    */
 u32 file_name=0;         //DGUT
 
@@ -222,18 +235,92 @@ void OnRecvText(PCTRL_MSG msg, qsize size)
 		{
 			dac_value = dac_value*10+ (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字 */
 		}
-	}
-	//****DGUT
+	}//****DGUT
+	
 	else if(screen_id == 1 &&  control_id == 2)
 	{
 		file_name = 0;
     while(((uint8 *)(&msg->param))[i])
 		{
-			file_name= file_name*10+ (((uint8 *)(&msg->param))[i++] -0x30);      /*从接收缓冲区取出键盘输入的数字（文件名），转换成十进制数字 */
-		}
-	}	
-	//**DGUT
+			file_name= file_name*10+ (((uint8 *)(&msg->param))[i++] -0x30);      /*从接收缓冲区取出键盘输入的数字（文件名），再转换成十进制数字 */		}
+	}//**DGUT
+
 	
+	else if(screen_id == 6 &&  control_id == 3)				/*取得频率的最小值设定*/
+	{
+		min_freq = 0;
+    while(((uint8 *)(&msg->param))[i])
+		{
+			min_freq = min_freq*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+		}
+	}
+	else if(screen_id == 6 &&  control_id == 4)				/*取得频率的最大值设定*/
+	{
+		
+		max_fre = 0;
+    while(((uint8 *)(&msg->param))[i])
+		{
+			max_fre = max_fre*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+		}
+	
+	}
+
+
+	else if(screen_id == 6 &&  control_id == 5)					/*取得电阻的最小值设定*/
+	{
+		
+		min_resis = 0;
+    while(((uint8 *)(&msg->param))[i])
+		{
+			min_resis = min_resis*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+		}
+	}
+	else if(screen_id == 6 &&  control_id == 6)							/*取得电阻的最大值设定*/
+	{
+		
+		max_resis = 0;
+    while(((uint8 *)(&msg->param))[i])
+		{
+			max_resis = max_resis*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+		}
+	}
+
+
+
+	else if(screen_id == 6 &&  control_id == 7)						/*取得电容的最小值设定*/
+	{
+		min_capac = 0;
+    while(((uint8 *)(&msg->param))[i])
+		{
+			min_capac = min_capac*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+		}
+	}
+	else if(screen_id == 6 &&  control_id == 8)						/*取得电容的最大值设定*/
+	{
+		
+		max_capac = 0;
+    while(((uint8 *)(&msg->param))[i])
+		{
+			max_capac = max_capac*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+		}
+	}
+		else if(screen_id == 6 &&  control_id == 8)						/*取得电感的最小值设定*/
+	{
+		
+		min_induc = 0;
+    while(((uint8 *)(&msg->param))[i])
+		{
+			min_induc = min_induc*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+		}
+	}
+			else if(screen_id == 6 &&  control_id == 8)						/*取得电感的最大值设定*/
+	{
+		max_indut = 0;
+    while(((uint8 *)(&msg->param))[i])
+		{
+			max_indut = max_indut*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+		}
+	}
 }
 
 /**************************************************************************************************************
