@@ -31,8 +31,9 @@ s32 angle = 0;
 s32 Capture_space = 0;
 
 u32 Time_100Ms = 0;
+u32 Time_100Ms_2 = 0;
 u16 TimeBase=0;
-
+u16 TimeBase2=0;
 __IO uint16_t IC4ReadValue1 = 0, IC4ReadValue2 = 0, IC4ReadValue3 = 0, IC4ReadValue4 = 0;
 
 
@@ -178,6 +179,27 @@ void TIM2_IRQHandler(void)
 		}
 	}
 	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);                 /*中断函数处理完成，清除中断处理位。   */
+}
+
+void TIM3_IRQHandler(void)
+{
+ 	if (TIM_GetITStatus(TIM3, TIM_IT_Update) == SET)            /*检测制定的中断是否发生   */
+	{
+//		Time_2Ms ++;
+		TimeBase2++;
+		if(TimeBase2>=100)//100ms
+		{
+			TimeBase2 = 0;
+			Time_100Ms_2 ++;
+
+// 			if(Time_200Ms++ >=5)  //500ms                         /*500ms 灯进行一次闪烁   */
+//			{
+// 			  	Time_200Ms=0;
+//				Led_Proganm_Sun_flag_D12();
+//			}
+		}
+	}
+	TIM_ClearITPendingBit(TIM3, TIM_IT_Update);                 /*中断函数处理完成，清除中断处理位。   */
 }
 
 /*******************************************************************************

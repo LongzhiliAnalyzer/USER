@@ -58,7 +58,6 @@ void Send_Cmd(void);
 void Impandence_Switch(void);
 u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value);
 void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage);
-int CampareandAlarm(double vfrequent,double vresistance,double vcapacity,double vinductor);
 
 void USART2_printf (char *fmt,...);
 void Send_Data_USB(void);
@@ -71,6 +70,7 @@ extern s16 angle;
 extern __IO uint16_t ADCConvertedValue[2];
 
 extern u32 Time_100Ms;
+extern u32 Time_100Ms_2;
 extern s32 Capture_space;
 //extern u32 P;
 extern u16 Stop_Control_Flag;
@@ -81,6 +81,18 @@ extern u8 USART2_RX;
 extern void Delayus(__IO uint32_t nCount);
 extern void Message_Deal(qsize size);
 
+// 小板新增
+#define USART_REC_LEN  			10000  	//定义最大接收字节数 200
+#define EN_USART1_RX 			1		//使能（1）/禁止（0）串口1接收
+	  	
+//extern UINT8  USART_RX_BUF[USART_REC_LEN]; //接收缓冲,最大USART_REC_LEN个字节.末字节为换行符 
+extern u32 USART_RX_STA;         		//接收状态标记	
+//如果想串口中断接收，请不要注释以下宏定义
+void uart_init(u32 bound);
+void uart2_init(u32 bound);
+void USART2_printf (char *fmt,...);
+// 小板新增
+void itoa (int n,char s[]);
 #endif
 
 

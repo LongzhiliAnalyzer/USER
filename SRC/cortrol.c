@@ -20,14 +20,29 @@
 *********************************************************************/
 
 #include "control.h"
-#include "CtrFile.h"
-
 #include "cmd_queue.h"
 #include "AD9833.h"
 #include <math.h>
 #include <stdio.h>
 
+#include "stdlib.h"
+#include "ctype.h"
+
+#include<string.h>
 #include <stdarg.h>
+
+// Ð¡°åÐÂÔö²¿·Ö
+#include "znfat.h"
+#include "delay.h"
+
+struct znFAT_Init_Args Init_Args; //³õÊ¼»¯TF¿¨²ÎÊý¼¯ºÏ
+struct FileInfo fileinfo; //ÎÄ¼þÐÅÏ¢¼¯ºÏ
+struct DateTime dt; 
+u8 times=0;
+//u32 file_name=0; already defined in ctrlfile.c
+INT8 File_Name[20]="0";     //{"/youchao/",file_name,".txt"};
+u32 t=0;
+//----Ð¡°åÐÂÔö²¿·Ö end----
 
 u8 USART2_RX=0;
 
@@ -85,6 +100,411 @@ u32 Fre_F2 = 0;				     //¶¨Òå²¢³õÊ¼»¯°ë¹¦ÂÊµãF2
 u32 fd = 0;
 
 //u32 file_name=0;         //DGUT
+
+
+//////
+
+//////////////////////////////////////////////////////////////////
+//¼ÓÈëÒÔÏÂ´úÂë,Ö§³Öprintfº¯Êý,¶ø²»ÐèÒªÑ¡Ôñuse MicroLIB	  
+#if 1
+#pragma import(__use_no_semihosting)             
+//±ê×¼¿âÐèÒªµÄÖ§³Öº¯Êý                 
+struct __FILE 
+{ 
+	int handle; 
+
+}; 
+
+FILE __stdout;       
+//¶¨Òå_sys_exit()ÒÔ±ÜÃâÊ¹ÓÃ°ëÖ÷»úÄ£Ê½    
+_sys_exit(int x) 
+{ 
+	x = x; 
+} 
+//ÖØ¶¨Òåfputcº¯Êý 
+int fputc(int ch, FILE *f)
+{      
+	while((USART1->SR&0X40)==0);//Ñ­»··¢ËÍ,Ö±µ½·¢ËÍÍê±Ï   
+    USART1->DR = (u8) ch;      
+	return ch;
+}
+#endif 
+
+//////
+
+/********************************
+Ð¡°åÐÂÔö²¿·Ö£¬ÓÃÒÔÊµÏÖ±£´æ¹¦ÄÜµÄº¯Êý
+*********************************/
+void save_first()           
+{
+	
+	char buf[50] = {0};
+	char buf2[15] = {0};
+	char sz[10] = {0};
+	unsigned char buf3[] = {0};
+	u32 len=0;
+	u32 i = 0;
+	u16 jj = 0;
+	u8 a=0,b=0,temp=0,temp2=0,res=0;
+	u8 name_head[]="/youchao/";             //´´½¨ÃûÎªyouchaoÎªÎÄ¼þ
+	UINT8 ENTER[]="\r\n";
+	//
+	UINT8 write_data[20] = "0";
+	//
+	UINT8 write_test[50] = "0";	 
+	UINT8 write_test1[50] = "0";
+	UINT8 write_test2[50] = "0";
+	UINT8 write_test3[50] = "0";
+	UINT8 write_test4[50] = "0";
+	UINT8 write_test5[] = "Fre    Imp		Ang\r\n";
+	UINT8 Head_String[] = 
+"           ×è¿¹·ÖÎöÒÇ À­À­         \r\n \
+FS          R1        F1     	\r\n";	
+	UINT8 Head_String1[] = "Fp          Zmax       F2     	\r\n ";	
+	UINT8 Head_String2[] = "Qm          keff       F2-F1     	\r\n ";	
+	UINT8 Head_String3[] = "CT          C1         C0     	\r\n ";	
+	UINT8 Head_String4[] = "L1 \r\n";	
+ 	 
+	
+	for(a=0;a<20;a++)
+		File_Name[a]=0;
+	if(0==znFAT_Device_Init())		    //´æ´¢Éè±¸³õÊ¼»¯		
+       TIM_Cmd(TIM3, ENABLE);          //´ò¿ª¶¨Ê±Æ÷
+	znFAT_Select_Device(0,&Init_Args);  //Ñ¡ÔñÉè±¸0£¬Ò²¾ÍÊÇÎÒµÄUÅÌ
+		
+	res=znFAT_Init();                   //ÎÄ¼þÏµÍ³³õÊ¼»¯
+	
+//	dt.date.year=2017;
+
+//dt.date.month=11;
+
+//dt.date.day=25;
+
+//dt.time.hour=11;
+
+//dt.time.min=14;
+
+//dt.time.sec=36;
+	if(!znFAT_Create_Dir("/youchao/",&dt))	
+	{ //printf("creat suc\r\n"); 
+		}		//´´½¨ÎÄ¼þ¼Ð
+	else	{ //printf("dir has exist.\r\n");
+		}
+	znFAT_Flush_FS();				//Ë¢ÐÂUÅÌ
+
+
+	for(a=0;a<sizeof(name_head);a++)	//½«¡°¡nname_head"¸³¸ø¡°¡Ffile_Name¡°
+	{
+		File_Name[a]=name_head[a];			
+	}
+	//printf("translate\r\n");
+	b=0;
+	
+	if(Time_100Ms_2>100)                      //¶¨Ê±Ê±¼ä10Ãë£¬±£´æ´íÎóµÄ»°½«»Øµ½³õÊ¼×´Ì¬
+	{
+		Time_100Ms_2=0;
+		TIM3->CNT=0;
+		t=0;
+		times=0;
+		znFAT_Close_File(&fileinfo);
+			
+		TIM_Cmd(TIM3, DISABLE);          //¹Ø±Õ¶¨Ê±Æ÷3
+		//printf("trans disconnected\r\n");
+		return;
+	}
+	
+	sprintf((char*)sz, "%d", file_name);
+	
+	for(a=0;a<sizeof(sz);a++)	//½«"file_name"¸³¸ø¡°File_Name¡°
+	{
+		File_Name[9+a]=sz[a];			
+	}
+	Fre_Min = 10000;
+	sprintf((char*)buf,"%-10.1f",(double)Fre_Min);
+	for(a=0;a<sizeof(buf);a++)	//½«²ÎÊý×ªÎª×Ö·û´æÈëÊý×é
+	{
+		write_test[a]=buf[a];			
+	}
+	temp = sizeof(buf);
+	sprintf((char*)buf,"%-8.2f",(double)XZ_Impandence/1000 * 1.14651);
+	for(a=0;a<sizeof(buf);a++)	//½«²ÎÊý×ªÎª×Ö·û´æÈëÊý×é
+	{
+		write_test[a+temp]=buf[a];			
+	}
+	temp2 = sizeof(buf);
+	sprintf((char*)buf,"%-10.1f",(double)Fre_F1);//°ë¹¦ÂÊµãF1
+	for(a=0;a<sizeof(buf);a++)	//½«²ÎÊý×ªÎª×Ö·û´æÈëÊý×é
+	{
+		write_test[a+temp+temp2]=buf[a];			
+	}
+	
+	sprintf((char*)buf,"%-8.1f",(double)Fre_Max);//·´Ð³ÕñÆµÂÊ
+	write_test1[0] = buf[0];
+	sprintf((char*)buf,"%-10.2f",(double)YZ_Impandence/1000000*0.59896); //·´Ð³Õñ×è¿¹
+	write_test1[1] = buf[0];
+	sprintf((char*)buf,"%-10.1f",(double)Fre_F2); //°ë¹¦ÂÊµãF2
+	write_test1[2] = buf[0];
+	
+	sprintf((char*)buf,"%-10.3f",(double)Qm * 1.029);//Æ·ÖÊÒòËØ
+	write_test2[0] = buf[0];
+	sprintf((char*)buf,"%-10.4f",(double)Keff * 0.97); //keff
+	write_test2[1] = buf[0];
+	sprintf((char*)buf,"%-10.3f",(double)fd);
+	write_test2[2] = buf[0];
+	
+	sprintf((char*)buf,"%-8.4f",CT*10000000000);//×ÔÓÉµçÈÝ
+	write_test3[0] = buf[0];
+	sprintf((char*)buf,"%-10.4f",(double)C1);     //¶¯Ì¬µçÈÝ
+	write_test3[1] = buf[0];
+	sprintf((char*)buf,"%-10.4f",(double)C0);//¾²Ì¬µçÈÝ
+	write_test3[2] = buf[0];
+	
+	sprintf((char*)buf,"%-10.3f",(double)L1 * 1.45396); //¶¯Ì¬µç¸Ð
+	write_test4[0] = buf[0];
+	
+	
+	TIM_Cmd(TIM3, DISABLE);          //¹Ø±Õ¶¨Ê±Æ÷3   
+	for(a=0;File_Name[a]!=0;a++);
+	File_Name[a++]=0x2e;                        //ÕâÀï±íÊ¾ÔÚÎÄ¼þÃûÖÐºó×º¼ÓÉÏ.txt
+	File_Name[a++]=0x74;
+	File_Name[a++]=0x78;
+	File_Name[a++]=0x74;
+	
+	//printf("translate ok\r\n");
+	//printf("%s\r\n",File_Name);
+	if(!znFAT_Create_File(&fileinfo,File_Name,&dt))			//´´½¨txtÎÄ¼þ
+	{
+		//printf("creat file  suc\r\n");
+		znFAT_Flush_FS();						//Ë¢ÐÂUÅÌ
+		delay_ms(10);
+//		res=znFAT_WriteData(&fileinfo,sizeof(Head_String),Head_String); 	//Ð´ÈëÊý¾Ý
+//		if(!res)		printf("fail to write data.\n");
+//		res=znFAT_WriteData(&fileinfo,50,write_test); 	                    //Ð´ÈëÊý¾Ý
+//		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //»»ÐÐ
+//		if(!res)		printf("fail to write data.\n");	
+
+//		res=znFAT_WriteData(&fileinfo,sizeof(Head_String1),Head_String1); 	//Ð´ÈëÊý¾Ý
+//		if(!res)		printf("fail to write data.\n");
+//		res=znFAT_WriteData(&fileinfo,50,write_test1); 	                    //Ð´ÈëÊý¾Ý
+//		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //»»ÐÐ
+//		if(!res)		printf("fail to write data.\n");	
+
+//		res=znFAT_WriteData(&fileinfo,sizeof(Head_String2),Head_String2); 	//Ð´ÈëÊý¾Ý
+//		if(!res)		printf("fail to write data.\n");
+//		res=znFAT_WriteData(&fileinfo,50,write_test2);                  	//Ð´ÈëÊý¾Ý
+//		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //»»ÐÐ
+//		if(!res)		printf("fail to write data.\n");	
+//		
+//		res=znFAT_WriteData(&fileinfo,sizeof(Head_String3),Head_String3); 	//Ð´ÈëÊý¾Ý
+//		if(!res)		printf("fail to write data.\n");
+//		res=znFAT_WriteData(&fileinfo,50,write_test3); 	                    //Ð´ÈëÊý¾Ý
+//		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //»»ÐÐ
+//		if(!res)		printf("fail to write data.\n");	
+//		
+//		res=znFAT_WriteData(&fileinfo,sizeof(Head_String4),Head_String4); 	//Ð´ÈëÊý¾Ý
+//		if(!res)		printf("fail to write data.\n");
+//		res=znFAT_WriteData(&fileinfo,50,write_test4); 	                    //Ð´ÈëÊý¾Ý
+//		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //»»ÐÐ
+//		if(!res)		printf("fail to write data.\n");	
+
+//		res=znFAT_WriteData(&fileinfo,sizeof(write_test5),write_test5); 	//Ð´ÈëÊý¾Ý
+//		if(!res)		printf("fail to write data.\n");
+					
+		
+		
+		
+		
+			//
+		//znFAT_Close_File(&fileinfo);
+		//delay_ms(50);
+		//znFAT_Flush_FS();						//Ë¢ÐÂUÅÌ
+//		delay_ms(50);
+		//for(jj = 0; jj < 2; jj++)
+		{
+			
+			jj=0;
+			delay_ms(50);
+			for (i = 10*jj; i < (1+10*jj);i++)
+			{
+				
+				sprintf((char*)buf2,"%-10.1f",(double)Impandence_Buffer2[i]);
+				for(a=0;a<sizeof(buf2);a++)	//½«²ÎÊý×ªÎª×Ö·û´æÈëÊý×é
+				{
+					write_data[a]=buf2[a];			
+				}
+				strcat((char *)write_data, "\r\n");
+				delay_ms(50);
+				res=znFAT_WriteData(&fileinfo,sizeof(write_data),(UINT8 *)write_data); 	                    //Ð´ÈëÊý¾Ý
+				//i=i+10;
+				if(!res)	
+				//	i=i+10;//	printf("fail to write data.\n");
+//				SetProgressValue(0,24, i*0.1);
+//				sprintf((char*)buf3,"%d",i*0.1);
+//				SetTextValue(0,25,buf3);
+				Delayus(4000000);
+			}	
+			//znFAT_Close_File(&fileinfo);									
+			delay_ms(50);
+			//znFAT_Open_File(&fileinfo,File_Name,0,1);
+		
+			//znFAT_Close_File(&fileinfo);
+			
+			delay_ms(50);
+			znFAT_Flush_FS();	//Ë¢ÐÂUÅÌ
+			delay_ms(50);
+			
+	//		znFAT_Open_File(&fileinfo,File_Name,0,1);
+		}
+			delay_ms(50);
+			delay_ms(50);
+
+		Beep_On();         //¿ª·äÃùÆ÷
+	Delayus(400000);
+	Beep_Off();        //¹Ø·äÃùÆ÷ 
+		
+		
+		
+		znFAT_Close_File(&fileinfo);					                    //¹Ø±ÕÎÄ¼þ			
+	//	printf("save_first ok\r\n");
+	}
+	else		                        //Èç¹û´æÔÚÁË¾Í´ò¿ª
+	{
+		//printf("the file has existed");
+	}	
+
+	
+
+		
+		//
+	times=1;
+	 
+	t=0;                               //·¢ËÍ0x51±íÊ¾µÚÒ»´ÎµÄÊý¾ÝÒÑ¾­½ÓÊÜÍê±Ï
+		
+} 
+
+void itoa (int n,char s[])
+{
+int i,j,sign;
+if((sign=n)<0)//????
+n=-n;//?n????
+i=0;
+do{
+       s[i++]=n%10+'0';//??????
+}
+while ((n/=10)>0);//?????
+if(sign<0)
+s[i++]='-';
+s[i]='\0';
+for(j=i;j>=0;j--)//?????????,???????
+       printf("%c",s[j]);
+} 
+
+
+
+
+/*********************************************************************************
+* º¯Êý×÷ÓÃ£º±£´æ×ó±ßÊý¾Ý
+* º¯Êý²ÎÊý£ºÎÞ
+* º¯Êý·µ»ØÖµ£ºÎÞ
+**********************************************************************************/
+void save_second()
+{
+UINT8 buf1[15]="123";
+UINT8 buf2[15]="123";
+UINT8 buf3[15]="123\r\n";
+UINT8 buf4[48]={0};
+	unsigned char buf[] = {0};
+	u8 res=0;
+	UINT32 len=0;
+	u16 i=0;
+	int j = 0;
+    u8 a=0;
+	UINT8 write_data[20] = "0";
+
+
+	znFAT_Flush_FS();
+	len = 48;
+	
+//	     sprintf((char*)buf2,"%-10.1f",(double)Impandence_Buffer2[t]);
+//				for(a=0;a<sizeof(buf2);a++)	//½«²ÎÊý×ªÎª×Ö·û´æÈëÊý×é
+//				{
+//					write_data[a]=buf2[a];			
+//				}
+//				strcat((char *)write_data, "\r\n");
+	
+//	
+//		buf[j] = Fre_Buffer[t];
+//		j++;	
+//		
+//		buf[j] = Impandence_Buffer[t];
+//		j++;	
+//	
+//		buf[j] = Angle[t];
+//		j++;	
+	
+
+		
+	delay_ms(50);
+	if(!znFAT_Open_File(&fileinfo,File_Name,0,1))			//´ò¿ªÖ¸¶¨µÄtxtÎÄ¼þ
+	{
+		//for(i=10*t;i<(10+10*t);i++)
+		{
+			
+//			USART2_printf("%d   ",Fre_Buffer[i]);               //·¢ËÍÆµÂÊ
+//				USART2_printf("%d    ",Impandence_Buffer[i]);       //·¢ËÍ×è¿¹
+//				USART2_printf("%f   \r\n",Angle[i]);		        //·¢ËÍÏàÎ»		
+//			sprintf((char*)buf1,"%10d",Fre_Buffer[i]);
+//			sprintf((char*)buf2,"%10d",Impandence_Buffer[i]);
+//			sprintf((char*)buf3,"%10d",(u32)Angle[i]);
+			
+			sprintf((char*)buf1,"%-10d",Fre_Buffer[t]);
+			sprintf((char*)buf2,"%-10d",Impandence_Buffer[t]);
+			sprintf((char*)buf3,"%-10d",( int )(Angle[t]*10));
+			
+			//itoa(i, buf1);
+			
+			strcat((char *)buf4,(char*)buf1);
+			strcat((char *)buf4,(char*)buf2);
+			strcat((char *)buf4,(char*)buf3);
+			strcat((char *)buf4, "\r\n");
+			
+//			res=znFAT_WriteData(&fileinfo,sizeof(buf1),buf1); 	//Ð´ÈëÊý¾Ý
+//			delay_ms(20);
+//			res=znFAT_WriteData(&fileinfo,sizeof(buf2),buf2); 	//Ð´ÈëÊý¾Ý
+//			delay_ms(20);
+			res=znFAT_WriteData(&fileinfo,sizeof(buf4),buf4); 	//Ð´ÈëÊý¾Ý
+			delay_ms(20);
+//			res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	//Ð´ÈëÊý¾Ý
+//			delay_ms(20);
+		}
+		
+			Beep_On();         //¿ª·äÃùÆ÷
+			Delayus(400000);
+			Beep_Off();        //¹Ø·äÃùÆ÷ 
+//		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //»»ÐÐ
+		//printf("%d\r\n",res);
+		znFAT_Close_File(&fileinfo);
+	}
+	else	
+		{
+			
+			//printf("open file fail\r\n");
+	}
+	
+	
+	
+	t=t+10;
+	delay_ms(50);
+	Delayus(3000000);
+	//Delayus(3000000);
+	znFAT_Flush_FS();
+	Delayus(3000000);
+//	SetProgressValue(0,24,t*100/68);
+//	sprintf((char*)buf,"%d",t*100/68);
+//	SetTextValue(0,25,buf); 	
+		
+	
+}
 /******************************************************************
 * º¯Êý×÷ÓÃ£º¶ÔÊý¾Ý½øÐÐÖÐÖµÂË²¨
 * º¯Êý²ÎÊý£º1¡¢Êý¾ÝÖ¸Õë£»2¡¢ÂË²¨´ÎÊý
@@ -197,7 +617,7 @@ s16 MidFilterSigned(s16* Array,u16 num )
 º¯ÊýÃû³Æ£ºvoid Phase_ValueFilter(u8 num)
 ¹¦    ÄÜ£ºÂË²¨´¦Àíº¯Êý,¶ÔÏàÎ»½øÐÐÂË²¨´¦Àí
 Ëµ    Ã÷£º
-Èë¿Ú²ÎÊý£ºÂË²¨½×Êýý?um(0¡¢1¡¢2¡¢3...20)
+Èë¿Ú²ÎÊý£ºÂË²¨½×Êýý£num(0¡¢1¡¢2¡¢3...20)
 ·µ»ØÖµ  £ºÎÞ
 ********************************************************************/
 void Phase_ValueFilter(u8 num)
@@ -225,7 +645,7 @@ void Phase_ValueFilter(u8 num)
 º¯ÊýÃû³Æ£ºvoid ADC1_ValueFilter(u8 num) ¹¦ÄÜÊÇµÃµ½²ÉÑùµÄµçÑ¹¡¢µçÁ÷Öµ
 ¹¦    ÄÜ£ºÂË²¨´¦Àíº¯Êý //²ÉÑù²¢¾­¹ýÖÐÖµÂË²¨¶øµÃµ½µÄµçÑ¹ºÍµçÁ÷Öµ£»
 Ëµ    Ã÷£º
-Èë¿Ú²ÎÊý£ºÂË²¨½×Êýý?um(0¡¢1¡¢2¡¢3...20)
+Èë¿Ú²ÎÊý£ºÂË²¨½×Êýý£num(0¡¢1¡¢2¡¢3...20)
 ·µ»ØÖµ  £ºÎÞ
 ********************************************************************/
 void ADC1_ValueFilter(u8 num)
@@ -506,7 +926,7 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 
 		if(Stop_Control_Flag == 1)
 		{
-			return 1;
+			return 0;
 		}
 
 		if(Current_Fre > (Start_Fre+Current_Buffer*(ProgressValue+1)))	   //½ø¶ÈÌõ¿ØÖÆ
@@ -734,39 +1154,8 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 	AD9833_Init();
 	
 
-	return 0;
+	return 1;
 }
-
-/*****************************************************************
-* Ãû    ³Æ£º CampareandAlarm()
-* ¹¦    ÄÜ£º ¼ÆËãÖµÓëÉè¶¨Öµ±È½Ï£¬³¬ÏÞ±¨¾¯
-* Èë¿Ú²ÎÊý£ºuchar *vfrequent,uchar *vresistance,uchar *vcapacity,uchar *vinductor   
-* ³ö¿Ú²ÎÊý£º  0£ºÕý³£·¶Î§ÄÚ      			1£º³¬ÏÞ
- *****************************************************************/
-
- int CampareandAlarm(double vfrequent,double vresistance,double vcapacity,double vinductor)
- {
- 
-   if((vfrequent<min_freq)||(vfrequent>max_fre))
-   	{
-		return 1;
-   	}
-	else if((vresistance<min_freq)||(vresistance>max_fre))
-   	{
-		return 1;
-   	}
-	else if((vcapacity<min_freq)||(vcapacity>max_fre))
-   	{
-		return 1;
-   	}
-	else if((vinductor<min_freq)||(vinductor>max_fre))
-   	{
-		return 1;
-   	}
-   	else
-   		return 0;
-  
- } 
 
 /**********************************************************************
 º¯ÊýÃû³Æ: void PhaseLock(void)
@@ -779,14 +1168,6 @@ void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage)
 {
 //	u16 t;
 	if (Sweep(Start_Fre, End_Fre, Voltage) == 1)
-	{
-		Stop_Button();
-		Impandence_Buffer_Flag = 0;
-
-		GPIO_ResetBits(GPIOE,GPIO_Pin_15);
-    GPIO_SetBits(GPIOE,GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_10|GPIO_Pin_11|GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14);
-	}
-	else
 	{
 //		for(t=0;t<1000;t++)
 //		{
@@ -818,12 +1199,15 @@ void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage)
 				break;
 			}
 		}
-		if(CampareandAlarm((double)Fre_Min,(double)XZ_Impandence/1000 * 1.14651,(double)C0,(double)L1 * 1.45396))
-			{
-				SetTextValue(0,8,"12");     //ÏÔÊ¾³¬ÏÞÐÅÏ¢
-		}
 		TIM_Cmd(TIM2, DISABLE);
-		
+	}
+	else
+	{
+		Stop_Button();
+		Impandence_Buffer_Flag = 0;
+
+		GPIO_ResetBits(GPIOE,GPIO_Pin_15);
+    GPIO_SetBits(GPIOE,GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_10|GPIO_Pin_11|GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14);
 	}
 }
 
@@ -892,164 +1276,39 @@ void USART2_IRQHandler()
 
 void Send_Data_USB()
 {  	
-	u16 t=0;
 	unsigned char buf[] = {0};
 	u16 i=0;	
+	ShowControl(0,28,1); 	
 	
-	ShowControl(0,28,0); 	
-	USART2->DR=0x54;
-	while((USART2->SR&0X40)==0x00);//µÈ´ý·¢ËÍ½áÊø
+	save_first();				//¸ñÊ½»¹ÓÐÎÊÌâ
 	
-	//·¢ÎÄ¼þÃû
-	USART2_printf("%d",file_name);    //DGUT//
-	USART2->DR=0x56;
-	while((USART2->SR&0X40)==0x00);//µÈ´ý·¢ËÍ½áÊø
-	//
-	sprintf((char*)buf,"%-10.1f",(double)Fre_Min);	//Ð³ÕñÆµÂÊ
-	USART2_printf("%S",buf);    //DGUT//
-	Send_Space(2);
-
-	sprintf((char*)buf,"%-8.2f",(double)XZ_Impandence/1000 * 1.14651);//¶¯Ì¬µç×è
-	USART2_printf("%S",buf);    //DGUT//
-	Send_Space(2);
-
-	sprintf((char*)buf,"%-10.1f",(double)Fre_F1);//°ë¹¦ÂÊµãF1
-	USART2_printf("%S",buf);    //DGUT//
-	
-	 USART2->DR=0x56;
-	 while((USART2->SR&0X40)==0);//µÈ´ý·¢ËÍ½áÊø			µÚÒ»ÐÐ
-
-	sprintf((char*)buf,"%-8.1f",(double)Fre_Max);//·´Ð³ÕñÆµÂÊ
-	USART2_printf("%S",buf);    //DGUT//
-	Send_Space(3);
-	
-	sprintf((char*)buf,"%-10.2f",(double)YZ_Impandence/1000000*0.59896); //·´Ð³Õñ×è¿¹
-	USART2_printf("%S",buf);    //DGUT//
-	Send_Space(1);
-	
-	sprintf((char*)buf,"%-10.1f",(double)Fre_F2); //°ë¹¦ÂÊµãF2
-	USART2_printf("%S",buf);    //DGUT//
-	
-	USART2->DR=0x56;
-	 while((USART2->SR&0X40)==0);//µÈ´ý·¢ËÍ½áÊø		µÚ¶þÐÐ
-	
-	sprintf((char*)buf,"%-10.3f",(double)Qm * 1.029);//Æ·ÖÊÒòËØ
-	USART2_printf("%S",buf);    //DGUT//
-	Send_Space(1);
-	
-	sprintf((char*)buf,"%-10.4f",(double)Keff * 0.97); //keff	
-	USART2_printf("%S",buf);    //DGUT// 
-	Send_Space(1);
-
-
-	sprintf((char*)buf,"%-10.3f",(double)fd);
-	USART2_printf("%S",buf);    //DGUT//
-
-	 USART2->DR=0x56;
-	 while((USART2->SR&0X40)==0);//µÈ´ý·¢ËÍ½áÊø		µÚÈýÐÐ
-	 
-	 
-	sprintf((char*)buf,"%-8.4f",CT*10000000000);//×ÔÓÉµçÈÝ
-	USART2_printf("%S",buf);    //DGUT//
-	Send_Space(3);
-
-	sprintf((char*)buf,"%-10.4f",(double)C1);     //¶¯Ì¬µçÈÝ
-	USART2_printf("%S",buf);    //DGUT// 
-	Send_Space(1);
-
-	sprintf((char*)buf,"%-10.4f",(double)C0);//¾²Ì¬µçÈÝ
-	USART2_printf("%S",buf);    //DGUT//
-
-	 USART2->DR=0x56;
-	 while((USART2->SR&0X40)==0);//µÈ´ý·¢ËÍ½áÊø			µÚËÄÐÐ
-	 
-	sprintf((char*)buf,"%-10.3f",(double)L1 * 1.45396); //¶¯Ì¬µç¸Ð
-	USART2_printf("%S",buf);    //DGUT//
-	
-	USART2->DR=0x56;
-	while((USART2->SR&0X40)==0x00) {}; //µÈ´ý·¢ËÍ½áÊø
-	USART2->DR=0x55;
-	while((USART2->SR&0X40)==0x00);//µÈ´ý·¢ËÍ½áÊø
-	USART2->DR=0x55;
-	while((USART2->SR&0X40)==0x00){};//µÈ´ý·¢ËÍ½áÊø
-
-    TIM_Cmd(TIM2, ENABLE);
-		
-//·¢ËÍ3¸öÊý×é
-	while(1)
+	while(t < 1000)
 	{
-        if(Time_100Ms>300)          //Èç¹û²»Õý³££¬30sºóÍË³öËÀÑ­»·
-        {
-            t=0;
-            USART2_RX=0;
-            SetScreen(2);           //ÏÔÊ¾±£´æ³ÉÊ§°Ü½çÃæ
-            Beep_On();              //¿ª·äÃùÆ÷
-            Delayus(400000);
-            Beep_Off();             //¹Ø·äÃùÆ÷  
-            Delayus(4000000);
-            Delayus(4000000);
-            SetScreen(0);	        //ÏÔÊ¾Ö÷½çÃæ
-            break;	            
-        }
-		if(t>=67)
-		{
-				SetProgressValue(0,24,100);
-				sprintf((char*)buf,"%d",100);
-				SetTextValue(0,25,buf);
-                Delayus(4000000);
-                if(USART2_RX==0x59)       //½ÓÊÕµ½³É¹¦±£´æÊý¾ÝµÄ±êÖ¾Y
-                {
-                      USART2_RX=0;
-                      SetScreen(3);	     //ÏÔÊ±±£´æ³É¹¦µÄ½çÃæ
-                      Beep_On();         //¿ª·äÃùÆ÷
-                      Delayus(400000);
-                      Beep_Off();        //¹Ø·äÃùÆ÷ 
-                      t=0;      	
-                      Delayus(4000000);
-                      Delayus(4000000);
-                      Delayus(4000000);
-                      SetScreen(0);	     //ÏÔÊ¾Ö÷½çÃæ   
-                      break;
-                }
-                else if(USART2_RX==0x58)    //UÅÌ´æ´¢³öÏÖÎÊÌâ
-                {
-                      t=0;
-                      USART2_RX=0;
-                      SetScreen(2);		  //ÏÔÊ¾±£´æÊ§°Ü½çÃæ
-                      Beep_On();          //¿ª·äÃùÆ÷
-                      Delayus(400000);
-                      Beep_Off();         //¹Ø·äÃùÆ÷   
-                      Delayus(4000000);
-                      Delayus(4000000);
-                      SetScreen(0);	      //ÏÔÊ¾Ö÷½çÃæ                    
-                      break;
-                }   
-		}    
-		if(USART2_RX==0x51)
-		{	   
-			USART2->DR=0x54;                   //·¢ËÍÆðÊ¼·ûT
-			while((USART2->SR&0X40)==0x00) {}; //µÈ´ý·¢ËÍ½áÊø
-					
-			for(i=t*15;i<(t*15+15);i++)
-			{
-				USART2_printf("%d   ",Fre_Buffer[i]);               //·¢ËÍÆµÂÊ
-				USART2_printf("%d    ",Impandence_Buffer[i]);       //·¢ËÍ×è¿¹
-				USART2_printf("%f   \r\n",Angle[i]);		        //·¢ËÍÏàÎ»		
-			}
-			t++;
-			USART2->DR=0x55;                     //·¢ËÍ½áÊø·ûºÅU          
-			while((USART2->SR&0X40)==0x00){};   //µÈ´ý·¢ËÍ½áÊø
-			USART2->DR=0x55;
-			while((USART2->SR&0X40)==0x00){};   //µÈ´ý·¢ËÍ½áÊø
-            USART2_RX=0;
-            SetProgressValue(0,24,t*100/68);
-            sprintf((char*)buf,"%d",t*100/68);
-            SetTextValue(0,25,buf); 	  
-		}		
-	} 
-    Time_100Ms=0;
-	ShowControl(0,28,1);       	//ÏÔÊ¾±£´æ°´Å¥	
-    TIM_Cmd(TIM2, DISABLE);     //¹Ø±Õ¶¨Ê±Æ÷2
+		
+			
+		save_second();	//Õâ¸öÊÇ»¹Ã»´æ½øÈ¥£¬ ¿ÉÄÜ³öÏÖÄÚ´æÒç³ö»òÕß·ÃÎÊÔ½½ç»òÕß¶ÑÕ»Òç³ö
+		delay_ms(100);	
+	}
+	delay_ms(100);
+	delay_ms(100);
+	delay_ms(100);
+
+	t = 0;
+	
+	SetProgressValue(0,24,100);
+	sprintf((char*)buf,"%d",100);
+	SetTextValue(0,25,buf);
+	Delayus(4000000);
+	  
+	SetScreen(3);	     //ÏÔÊ±±£´æ³É¹¦µÄ½çÃæ
+	Beep_On();         //¿ª·äÃùÆ÷
+	Delayus(400000);
+	Beep_Off();        //¹Ø·äÃùÆ÷ 
+	t=0;      	
+	Delayus(4000000);
+	Delayus(4000000);
+	Delayus(4000000);
+	SetScreen(0);	     //ÏÔÊ¾Ö÷½çÃæ   
 }
 
 /**********************************************************************

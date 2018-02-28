@@ -21,6 +21,13 @@
 
 #include "main.h"
 #include "control.h"
+
+#include "delay.h"
+#include "sys.h"
+#include "ch375.h"
+
+
+
 ErrorStatus HSEStartUpStatus;
 
 u16 count=0;//   DGUT
@@ -325,6 +332,14 @@ void NVIC_Configuration(void)
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
+  
+  // 小板新增
+  /* Enable the TIM3 Interrupt */
+  NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
 	
 	/* Enable the TIM4 Interrupt */
   NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;
@@ -390,6 +405,21 @@ void TIM_Configuration(void)
   TIM_ITConfig(TIM4, TIM_IT_CC2, ENABLE);	                          /*Channel 2捕获中断使能*/
 	TIM4->CCER &= (uint16_t)~((uint16_t)TIM_CCER_CC1E);		            /*禁止一通道捕获*/
 	TIM4->CCER &= (uint16_t)~((uint16_t)TIM_CCER_CC2E);		            /*禁止二通道捕获*/
+	
+	
+	// 小板新增
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3,ENABLE);  ///使能TIM3时钟
+	
+	TIM_BaseInitStructure.TIM_Period = 2000; 	//自动重装载值
+	TIM_BaseInitStructure.TIM_Prescaler=35;  //定时器分频
+	TIM_BaseInitStructure.TIM_CounterMode=TIM_CounterMode_Down; //向下模式
+	TIM_BaseInitStructure.TIM_ClockDivision=TIM_CKD_DIV1; 
+	
+	TIM_TimeBaseInit(TIM3,&TIM_BaseInitStructure);//初始化TIM3
+	
+	TIM_ITConfig(TIM3,TIM_IT_Update,ENABLE); //允许定时器2更新中断
+	TIM_Cmd(TIM3,DISABLE); //使能定时器3
+	
 }
 
 
@@ -412,6 +442,8 @@ void CPU_Init(void)
 	GPIO_SetBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14);
 }
 
+
+
 /*******************************************************************
 * 函数作用：主函数入口
 * 函数参数：无
@@ -428,6 +460,11 @@ int main ()
 	Delayus(3000000);		                  /*延时等待串口屏初始化完毕,必须等待300ms*/
   iniuserctr();					                /*初始化用户控件*/
 	Delayus(3000000);
+	
+	/* 小板新增 */
+	delay_init();
+	CH375_Configuration();
+	CH375_Init();
 	
   while (1)
   {

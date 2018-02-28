@@ -41,7 +41,6 @@ void ClearScreen_Button(void);
 void SaveData_Button(void);
 void SavePic_Button(void);
 
-
 extern uint16 Ok_Control_Flag;
 extern uint16 Stop_Control_Flag;
 extern uint16 Clear_Flag;
@@ -51,6 +50,12 @@ extern uint16 StarFre_Control_Flag;
 extern uint16 EndFre_Control_Flag;
 extern uint16 Dac_Control_Flag;
 
+
+//小板新增
+extern u32 start_fre;                       /*定义起始频率   */
+extern u32 end_fre;                         /*定义终止频率   */
+extern u32 dac_value;                       /*定义DAC初值    */
+extern u32 file_name;                   //DGUT定义文件名初值
 
 extern void Delayus(__IO uint32_t kCount);
 
