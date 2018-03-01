@@ -189,7 +189,7 @@ FS          R1        F1     	\r\n";
 	for(a=0;a<20;a++)
 		File_Name[a]=0;
 	if(0==znFAT_Device_Init())		    //存储设备初始化		
-       TIM_Cmd(TIM3, ENABLE);          //打开定时器
+       //TIM_Cmd(TIM3, ENABLE);          //打开定时器
 	znFAT_Select_Device(0,&Init_Args);  //选择设备0，也就是我的U盘
 		
 	res=znFAT_Init();                   //文件系统初始化
@@ -239,51 +239,41 @@ FS          R1        F1     	\r\n";
 	{
 		File_Name[9+a]=sz[a];			
 	}
-	Fre_Min = 10000;
+	//Fre_Min = 10000;
 	sprintf((char*)buf,"%-10.1f",(double)Fre_Min);
-//	for(a=0;a<sizeof(buf);a++)	//将参数转为字符存入数组
-//	{
-//		write_test[a]=buf[a];			
-//	}
-//	temp = sizeof(buf);
 	strcat((char *)write_test, (char *)buf);
 	sprintf((char*)buf,"%-8.2f",(double)XZ_Impandence/1000 * 1.14651);
 	strcat((char *)write_test, (char *)buf);
-//	for(a=0;a<sizeof(buf);a++)	//将参数转为字符存入数组
-//	{
-//		write_test[a+temp]=buf[a];			
-//	}
-//	temp2 = sizeof(buf);
 	sprintf((char*)buf,"%-10.1f",(double)Fre_F1);//半功率点F1
 	strcat((char *)write_test, (char *)buf);
-//	for(a=0;a<sizeof(buf);a++)	//将参数转为字符存入数组
-//	{
-//		write_test[a+temp+temp2]=buf[a];			
-//	}
+	strcat((char *)write_test, "\r\n");
+
+	
+	
 	
 	sprintf((char*)buf,"%-8.1f",(double)Fre_Max);//反谐振频率
-	write_test1[0] = buf[0];
+	strcat((char *)write_test1, (char *)buf);
 	sprintf((char*)buf,"%-10.2f",(double)YZ_Impandence/1000000*0.59896); //反谐振阻抗
-	write_test1[1] = buf[0];
+	strcat((char *)write_test1, (char *)buf);
 	sprintf((char*)buf,"%-10.1f",(double)Fre_F2); //半功率点F2
-	write_test1[2] = buf[0];
+	strcat((char *)write_test1, (char *)buf);
 	
 	sprintf((char*)buf,"%-10.3f",(double)Qm * 1.029);//品质因素
-	write_test2[0] = buf[0];
+	strcat((char *)write_test2, (char *)buf);
 	sprintf((char*)buf,"%-10.4f",(double)Keff * 0.97); //keff
-	write_test2[1] = buf[0];
+	strcat((char *)write_test2, (char *)buf);
 	sprintf((char*)buf,"%-10.3f",(double)fd);
-	write_test2[2] = buf[0];
+	strcat((char *)write_test2, (char *)buf);
 	
 	sprintf((char*)buf,"%-8.4f",CT*10000000000);//自由电容
-	write_test3[0] = buf[0];
+	strcat((char *)write_test3, (char *)buf);
 	sprintf((char*)buf,"%-10.4f",(double)C1);     //动态电容
-	write_test3[1] = buf[0];
+	strcat((char *)write_test3, (char *)buf);
 	sprintf((char*)buf,"%-10.4f",(double)C0);//静态电容
-	write_test3[2] = buf[0];
+	strcat((char *)write_test3, (char *)buf);
 	
 	sprintf((char*)buf,"%-10.3f",(double)L1 * 1.45396); //动态电感
-	write_test4[0] = buf[0];
+	strcat((char *)write_test4, (char *)buf);
 	
 	
 	TIM_Cmd(TIM3, DISABLE);          //关闭定时器3   
@@ -302,7 +292,6 @@ FS          R1        F1     	\r\n";
 		delay_ms(10);
 		res=znFAT_WriteData(&fileinfo,sizeof(Head_String),Head_String); 	//写入数据
 		if(!res)		printf("fail to write data.\n");
-		strcat((char *)write_test, "\r\n");
 		res=znFAT_WriteData(&fileinfo,sizeof(write_test),write_test); 	                    //写入数据
 		//res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		if(!res)		printf("fail to write data.\n");	
@@ -331,9 +320,9 @@ FS          R1        F1     	\r\n";
 		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		if(!res)		printf("fail to write data.\n");	
 
-		res=znFAT_WriteData(&fileinfo,sizeof(write_test5),write_test5); 	//写入数据
+		res=znFAT_WriteData(&fileinfo,sizeof(write_test5),write_test5); 	//写入数据	
 		if(!res)		printf("fail to write data.\n");
-					
+		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行		
 		
 		
 		
@@ -344,21 +333,27 @@ FS          R1        F1     	\r\n";
 		znFAT_Flush_FS();						//刷新U盘
 		delay_ms(50);
 		//for(jj = 0; jj < 2; jj++)
-		znFAT_Open_File(&fileinfo,File_Name,0,1);
+		//znFAT_Open_File(&fileinfo,File_Name,0,1);
 		
 		jj=0;
 		delay_ms(50);
-		for (i = 0; i < 200 ;i++)
-		{	
-			sprintf((char*)buf2,"%-10.1f",(double)Impandence_Buffer2[i]);
+//		for (i = 0; i < 200 ;i++)
+//		{	
+//			sprintf((char*)buf2,"%-10.1f",(double)Impandence_Buffer2[i]);
 //			for(a=0;a<sizeof(buf2);a++)	//将参数转为字符存入数组
 //			{
 //				write_data[a]=buf2[a];			
 //			}
 //			strcat((char *)write_data, "\r\n");
-			strcat((char *)buf2, "\r\n");
+			
+			//strcat((char *)buf2, "\r\n");
+			
 			//delay_ms(50);
-			res=znFAT_WriteData(&fileinfo,sizeof(write_data),(UINT8 *)write_data); 	                    //写入数据
+			
+			
+			//res=znFAT_WriteData(&fileinfo,sizeof(write_data),(UINT8 *)write_data); 	                    //写入数据
+			
+			
 			//i=i+10;
 			//if(!res)	
 			//	i=i+10;//	printf("fail to write data.\n");
@@ -368,7 +363,7 @@ FS          R1        F1     	\r\n";
 
 			//delay_ms(200);
 			//Delayus(4000000);
-		}	
+		//}	
 		//znFAT_Close_File(&fileinfo);									
 		delay_ms(50);
 		//znFAT_Open_File(&fileinfo,File_Name,0,1);
@@ -390,7 +385,7 @@ FS          R1        F1     	\r\n";
 		
 		
 		
-		znFAT_Close_File(&fileinfo);					                    //关闭文件			
+	//	znFAT_Close_File(&fileinfo);					                    //关闭文件			
 	//	printf("save_first ok\r\n");
 	}
 	else		                        //如果存在了就打开
