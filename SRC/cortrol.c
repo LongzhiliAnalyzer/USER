@@ -76,8 +76,6 @@ u16 chart1_axis_max=0;
 u16 chart2_axis_max=0;
 u16 chart2_axis_min=0;
 
-
-
 u16 Impandence_Log10[1024] = {0};
 u16 V_A_MAX=0;
 u16 V_A_MIN=0;
@@ -358,10 +356,10 @@ FS          R1        F1     	\r\n";
 			//i=i+10;
 			if(!res)	
 			//	i=i+10;//	printf("fail to write data.\n");
-			SetProgressValue(0,24, i*0.1);
+//			SetProgressValue(0,24, i*0.1);
 //				sprintf((char*)buf3,"%d",i*0.1);
 //				SetTextValue(0,25,buf3);
-			Delayus(4000000);
+			Delayus(4000);
 		}	
 		//znFAT_Close_File(&fileinfo);									
 		delay_ms(50);
