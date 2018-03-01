@@ -470,8 +470,8 @@ UINT8 ENTER[]="  \r\n";
 
 		
 	delay_ms(50);
-	if(!znFAT_Open_File(&fileinfo,File_Name,0,1))			//打开指定的txt文件
-	{
+	//if(!znFAT_Open_File(&fileinfo,File_Name,0,1))			//打开指定的txt文件
+	//{
 		//for(i=10*t;i<(10+10*t);i++)
 		{
 			
@@ -509,13 +509,13 @@ UINT8 ENTER[]="  \r\n";
 //			Beep_Off();        //关蜂鸣器 
 //		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		//printf("%d\r\n",res);
-		znFAT_Close_File(&fileinfo);
-	}
-	else	
-		{
+		//znFAT_Close_File(&fileinfo);
+	//}
+	//else	
+	//	{
 			
 			//printf("open file fail\r\n");
-	}
+	//}
 	
 	
 	
@@ -1438,15 +1438,20 @@ void Send_Data_USB()
 	
 	save_first();				//格式还有问题
 	
+	znFAT_Open_File(&fileinfo,File_Name,0,1);
+	znFAT_Flush_FS();
 	while(t < 1000)
 	{
+		save_second();	//这个是还没存进去， 可能出现内存溢出或者访问越界或者堆栈溢出
 		if(t % 16 == 0)
 		{
-			znFAT_Init();                   //文件系统初始化
+			znFAT_Close_File(&fileinfo);
 			znFAT_Flush_FS();
 			delay_ms(50);
+			//znFAT_Init();                   //文件系统初始化
+			znFAT_Open_File(&fileinfo,File_Name,0,1);
+			delay_ms(50);
 		}
-		save_second();	//这个是还没存进去， 可能出现内存溢出或者访问越界或者堆栈溢出
 		delay_ms(100);	
 	}
 	delay_ms(100);
