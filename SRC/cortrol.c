@@ -1085,7 +1085,7 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		chart2_axis_min = log10((double)Impandence_Value)*1000;
 		for(i_flag=0; i_flag<1000; i_flag++)
 		{
-			chart1[i_flag] = (u16)(Impandence_Buffer[i_flag]>>16);
+			chart1[i_flag] = (u16)(Impandence_Buffer[i_flag]>>16)*0.45;
 		}
 		//memcpy(chart1,Impandence_Buffer2,sizeof(u16)*2048);
 		memcpy(chart2s,Angle_Buffer,sizeof(s16)*2048);
@@ -1280,7 +1280,7 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		unsigned char Buff[] = {0};
 		
       	
-        sprintf((char*)Buff,"%-7.0f",(double)start_fre);   
+        sprintf((char*)Buff,"%-10.4f", (double)start_fre);   
 		SetTextValue(0,8,Buff);	
 
 		if(display_flag==0){
@@ -1307,7 +1307,7 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 			SetTextValue(0,35,Buff);
 			
         	GraphSetViewport(0,23,0,33,0,5);    
-			GraphSetViewport(0,33,0,33,0,2);		 //5-185
+			GraphSetViewport(0,33,0,33,0,1);		 //5-185
 			
 		 }
 		  TIM_Cmd(TIM2, ENABLE);
