@@ -178,9 +178,9 @@ void save_first()
 	UINT8 write_test4[50] = "0";
 	UINT8 write_test5[] = "Fre    Imp		Ang\r\n";
 	UINT8 Head_String[] = 
-"           阻抗分析仪 拉拉         \r\n \
+"           阻抗分析仪         \r\n \
 FS          R1        F1     	\r\n";	
-	UINT8 Head_String1[] = "Fp          Zmax       F2     	\r\n ";	
+	UINT8 Head_String1[] = "Fp          Zmax       F2   	\r\n ";	
 	UINT8 Head_String2[] = "Qm          keff       F2-F1     	\r\n ";	
 	UINT8 Head_String3[] = "CT          C1         C0     	\r\n ";	
 	UINT8 Head_String4[] = "L1 \r\n";	
@@ -300,6 +300,7 @@ FS          R1        F1     	\r\n";
 		res=znFAT_WriteData(&fileinfo,sizeof(Head_String),Head_String); 	//写入数据
 		if(!res)		printf("fail to write data.\n");
 		res=znFAT_WriteData(&fileinfo,50,write_test); 	                    //写入数据
+		if(!res)		printf("fail to write data.\n");
 		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		if(!res)		printf("fail to write data.\n");	
 
