@@ -1307,7 +1307,7 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 			SetTextValue(0,35,Buff);
 			
         	GraphSetViewport(0,23,0,33,0,5);    
-			GraphSetViewport(0,33,0,33,chart1_axis_max-(185*(chart1_axis_max-chart1_axis_min)/180),18000/(chart1_axis_max-chart1_axis_min));		 //5-185
+			GraphSetViewport(0,33,0,33,0,2);		 //5-185
 			
 		 }
 		  TIM_Cmd(TIM2, ENABLE);
