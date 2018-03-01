@@ -340,18 +340,20 @@ FS          R1        F1     	\r\n";
 		znFAT_Flush_FS();						//刷新U盘
 		delay_ms(50);
 		//for(jj = 0; jj < 2; jj++)
-
+		znFAT_Open_File(&fileinfo,File_Name,0,1);
+		
 		jj=0;
 		delay_ms(50);
 		for (i = 0; i < 200 ;i++)
 		{	
 			sprintf((char*)buf2,"%-10.1f",(double)Impandence_Buffer2[i]);
-			for(a=0;a<sizeof(buf2);a++)	//将参数转为字符存入数组
-			{
-				write_data[a]=buf2[a];			
-			}
-			strcat((char *)write_data, "\r\n");
-			delay_ms(50);
+//			for(a=0;a<sizeof(buf2);a++)	//将参数转为字符存入数组
+//			{
+//				write_data[a]=buf2[a];			
+//			}
+//			strcat((char *)write_data, "\r\n");
+			strcat((char *)buf2, "\r\n");
+			//delay_ms(50);
 			res=znFAT_WriteData(&fileinfo,sizeof(write_data),(UINT8 *)write_data); 	                    //写入数据
 			//i=i+10;
 			//if(!res)	
@@ -360,7 +362,7 @@ FS          R1        F1     	\r\n";
 //				sprintf((char*)buf3,"%d",i*0.1);
 //				SetTextValue(0,25,buf3);
 
-			delay_ms(50);
+			//delay_ms(200);
 			//Delayus(4000000);
 		}	
 		//znFAT_Close_File(&fileinfo);									
