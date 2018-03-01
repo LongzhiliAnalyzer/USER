@@ -167,11 +167,11 @@ void save_first()
 	u16 jj = 0;
 	u8 a=0,b=0,temp=0,temp2=0,res=0;
 	u8 name_head[]="/youchao/";             //创建名为youchao为文件
-	UINT8 ENTER[]="\r\n";
+	UINT8 ENTER[]="  \r\n";
 	//
 	UINT8 write_data[20] = "0";
 	//
-	UINT8 write_test[50] = "0";	 
+	UINT8 write_test[50] = {0};	 
 	UINT8 write_test1[50] = "0";
 	UINT8 write_test2[50] = "0";
 	UINT8 write_test3[50] = "0";
@@ -241,22 +241,25 @@ FS          R1        F1     	\r\n";
 	}
 	Fre_Min = 10000;
 	sprintf((char*)buf,"%-10.1f",(double)Fre_Min);
-	for(a=0;a<sizeof(buf);a++)	//将参数转为字符存入数组
-	{
-		write_test[a]=buf[a];			
-	}
-	temp = sizeof(buf);
+//	for(a=0;a<sizeof(buf);a++)	//将参数转为字符存入数组
+//	{
+//		write_test[a]=buf[a];			
+//	}
+//	temp = sizeof(buf);
+	strcat((char *)write_test, (char *)buf);
 	sprintf((char*)buf,"%-8.2f",(double)XZ_Impandence/1000 * 1.14651);
-	for(a=0;a<sizeof(buf);a++)	//将参数转为字符存入数组
-	{
-		write_test[a+temp]=buf[a];			
-	}
-	temp2 = sizeof(buf);
+	strcat((char *)write_test, (char *)buf);
+//	for(a=0;a<sizeof(buf);a++)	//将参数转为字符存入数组
+//	{
+//		write_test[a+temp]=buf[a];			
+//	}
+//	temp2 = sizeof(buf);
 	sprintf((char*)buf,"%-10.1f",(double)Fre_F1);//半功率点F1
-	for(a=0;a<sizeof(buf);a++)	//将参数转为字符存入数组
-	{
-		write_test[a+temp+temp2]=buf[a];			
-	}
+	strcat((char *)write_test, (char *)buf);
+//	for(a=0;a<sizeof(buf);a++)	//将参数转为字符存入数组
+//	{
+//		write_test[a+temp+temp2]=buf[a];			
+//	}
 	
 	sprintf((char*)buf,"%-8.1f",(double)Fre_Max);//反谐振频率
 	write_test1[0] = buf[0];
@@ -299,9 +302,9 @@ FS          R1        F1     	\r\n";
 		delay_ms(10);
 		res=znFAT_WriteData(&fileinfo,sizeof(Head_String),Head_String); 	//写入数据
 		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,50,write_test); 	                    //写入数据
-		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
+		strcat((char *)write_test, "\r\n");
+		res=znFAT_WriteData(&fileinfo,sizeof(write_test),write_test); 	                    //写入数据
+		//res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		if(!res)		printf("fail to write data.\n");	
 
 		res=znFAT_WriteData(&fileinfo,sizeof(Head_String1),Head_String1); 	//写入数据
@@ -502,7 +505,7 @@ UINT8 buf4[48]={0};
 		}
 		
 			Beep_On();         //开蜂鸣器
-			Delayus(400000);
+			Delayus(200000);
 			Beep_Off();        //关蜂鸣器 
 //		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		//printf("%d\r\n",res);
