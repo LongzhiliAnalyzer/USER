@@ -58,6 +58,8 @@ void Send_Cmd(void);
 void Impandence_Switch(void);
 u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value);
 void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage);
+int CampareandAlarm(double num1,double num2,double num3,double num4,
+ 				double num5,double num6,double num7,double num8,double num9);
 
 void USART2_printf (char *fmt,...);
 void Send_Data_USB(void);
@@ -74,6 +76,7 @@ extern u32 Time_100Ms_2;
 extern s32 Capture_space;
 //extern u32 P;
 extern u16 Stop_Control_Flag;
+extern uint16 Display_Mode_Flag;    //显示模式标志
 
 extern u8 cmd_buffer[1024];  //串口命令接收缓冲区 
 extern u8 USART2_RX;

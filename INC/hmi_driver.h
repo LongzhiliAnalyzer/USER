@@ -12,6 +12,7 @@ enum CtrlType
     kCtrlSlider,    //滑动条
     kCtrlMeter,  //仪表
 	  kCtrlAnimation=0x26, //动画或图标
+	  kCtrlmenu=0x1A,  //菜单
 
 };
 

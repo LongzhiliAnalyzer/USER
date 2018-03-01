@@ -455,10 +455,10 @@ int main ()
 	
 	CPU_Init();
 	AD9833_Init();
-  queue_reset();					              /*清空串口接收缓冲区*/
+  	queue_reset();					              /*清空串口接收缓冲区*/
 	SetDeviceReset();				              /*复位串口屏*/
 	Delayus(3000000);		                  /*延时等待串口屏初始化完毕,必须等待300ms*/
-  iniuserctr();					                /*初始化用户控件*/
+  	iniuserctr();					                /*初始化用户控件*/
 	Delayus(3000000);
 	
 	/* 小板新增 */

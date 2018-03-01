@@ -20,6 +20,8 @@
 *********************************************************************/
 
 #include "control.h"
+#include "CtrFile.h"
+
 #include "cmd_queue.h"
 #include "AD9833.h"
 #include <math.h>
@@ -64,21 +66,39 @@ s32 angle_P = 0;
 
 u32 Impandence_Buffer[2048] = {0};               /*¶¨ÒåÒ»¸ö´óµÄÊý×é£¬ÓÃÓÚ±£´æÉ¨Æµ¹ý³ÌÖÐµÃµ½µÄ×è¿¹Öµ*/
 u16 Impandence_Buffer2[2048] = {0};              /*¶¨ÒåÒ»¸ö´óµÄÊý×é£¬ÓÃÓÚ±£´æ¶ÔÊý×ª»»ºóµÄ×è¿¹Öµ*/
+
+u16 chart1[2048]={0};
+u16 chart2u[2048]={0};
+s16 chart2s[2048]={0};
+u16 chart1_axis_min=0;
+u16 chart1_axis_max=0;
+u16 chart2_axis_max=0;
+u16 chart2_axis_min=0;
+
+
+
 u16 Impandence_Log10[2048] = {0};
+u16 V_A_MAX=0;
+u16 V_A_MIN=0;
 s16 Angle_Buffer[2048] = {0};                    /*¶¨ÒåÒ»¸ö´óµÄÊý×é£¬ÓÃÓÚ±£´æÉ¨Æµ¹ý³ÌÖÐµÃµ½µÄÏàÎ»Öµ£¨Î´¾­×ª»»£©*/
 float Angle[2048] = {0.0};                       /*¶¨ÒåÒ»¸ö´óµÄÊý×é£¬ÓÃÓÚ±£´æÉ¨Æµ¹ý³ÌÖÐµÃµ½µÄÏàÎ»Öµ*/
 u32 Fre_Buffer[2048] = {0};                      /*±£´æÉ¨Æµ¹ý³ÌÖÐµÄÆµÂÊµãÊý*/
 u16 Impandence_Buffer_Flag = 0;                  /*ÓÃÓÚ¼ÇÂ¼É¨ÆµµÄÎ»ÖÃ*/
 u32 Impandence_Value_Max = 0;                    /*×î´ó×è¿¹Öµ*/
 u32 Impandence_Value_Min = 0;                    /*×îÐ¡×è¿¹Öµ*/
-u32 Impandence_G[2048] = {0};                    /*   */
+//u32 Impandence_G[2048] = {0};                    /*   */
 u32 Impandence_G_Buffer[2048] = {0};             /*   */
 u32 XJ_Temp = 0;                                 /*   */
 u32 XZ_Impandence = 0;                           /*   */
 u32 YJ_Temp = 0;                                 /*   */
 u32 YZ_Impandence = 0;                           /*   */
+
 u16 Impandence_Log10_Max = 0;                    /*¶ÔÊý×ª»»ÒÔºóµÄ×è¿¹×î´óÖµ*/
 u16 Impandence_Log10_Min = 0;                    /*¶ÔÊý×ª»»ÒÔºóµÄ×è¿¹×îÐ¡Öµ*/
+
+
+
+
 u32 Fre_Max = 0;                                 /*·´Ð³Õñ×è¿¹*/
 u32 Fre_Min = 0;                                 /*Ð³Õñ×è¿¹*/
 s16 Angle_Buffer0 = 0;
@@ -193,7 +213,7 @@ FS          R1        F1     	\r\n";
 	znFAT_Flush_FS();				//Ë¢ÐÂUÅÌ
 
 
-	for(a=0;a<sizeof(name_head);a++)	//½«¡°¡nname_head"¸³¸ø¡°¡Ffile_Name¡°
+	for(a=0;a<sizeof(name_head);a++)	//½«¡°?name_head"¸³¸ø¡°?file_Name¡°
 	{
 		File_Name[a]=name_head[a];			
 	}
@@ -617,7 +637,7 @@ s16 MidFilterSigned(s16* Array,u16 num )
 º¯ÊýÃû³Æ£ºvoid Phase_ValueFilter(u8 num)
 ¹¦    ÄÜ£ºÂË²¨´¦Àíº¯Êý,¶ÔÏàÎ»½øÐÐÂË²¨´¦Àí
 Ëµ    Ã÷£º
-Èë¿Ú²ÎÊý£ºÂË²¨½×Êýý£num(0¡¢1¡¢2¡¢3...20)
+Èë¿Ú²ÎÊý£ºÂË²¨½×Êýý?um(0¡¢1¡¢2¡¢3...20)
 ·µ»ØÖµ  £ºÎÞ
 ********************************************************************/
 void Phase_ValueFilter(u8 num)
@@ -645,7 +665,7 @@ void Phase_ValueFilter(u8 num)
 º¯ÊýÃû³Æ£ºvoid ADC1_ValueFilter(u8 num) ¹¦ÄÜÊÇµÃµ½²ÉÑùµÄµçÑ¹¡¢µçÁ÷Öµ
 ¹¦    ÄÜ£ºÂË²¨´¦Àíº¯Êý //²ÉÑù²¢¾­¹ýÖÐÖµÂË²¨¶øµÃµ½µÄµçÑ¹ºÍµçÁ÷Öµ£»
 Ëµ    Ã÷£º
-Èë¿Ú²ÎÊý£ºÂË²¨½×Êýý£num(0¡¢1¡¢2¡¢3...20)
+Èë¿Ú²ÎÊý£ºÂË²¨½×Êýý?um(0¡¢1¡¢2¡¢3...20)
 ·µ»ØÖµ  £ºÎÞ
 ********************************************************************/
 void ADC1_ValueFilter(u8 num)
@@ -917,16 +937,16 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		Fre_Buffer[i_flag++] = Current_Fre/1000;
 		ad9833_out(Current_Fre/1000, 2);
 		Delayus(10000);
-	  ADC1_ValueFilter(20);					                                     //²ÉÑùµÃµ½·´À¡µÄµçÑ¹¡¢µçÁ÷Öµ
+	    ADC1_ValueFilter(20);					                                     //²ÉÑùµÃµ½·´À¡µÄµçÑ¹¡¢µçÁ÷Öµ
 		Phase_ValueFilter(20);
 		Current_ARes = (float)Current_A/SampleRes;
 
-    Size = queue_find_cmd(cmd_buffer,1024);                            //´Ó»º³åÇøÖÐ»ñÈ¡Ò»ÌõÖ¸Áî
+    	Size = queue_find_cmd(cmd_buffer,1024);                            //´Ó»º³åÇøÖÐ»ñÈ¡Ò»ÌõÖ¸Áî
 		Message_Deal(Size);
 
 		if(Stop_Control_Flag == 1)
 		{
-			return 0;
+			return 1;
 		}
 
 		if(Current_Fre > (Start_Fre+Current_Buffer*(ProgressValue+1)))	   //½ø¶ÈÌõ¿ØÖÆ
@@ -970,14 +990,21 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		}
 
 		Impandence_Buffer[Impandence_Buffer_Flag] = Impandence_Value_Buffer;                        //±£´æ×è¿¹
-		Impandence_Log10[Impandence_Buffer_Flag] = log10((double)Impandence_Buffer[i_flag])*1000;
+		//Impandence_Log10[Impandence_Buffer_Flag] = log10((double)Impandence_Buffer[i_flag])*1000;
 		Angle_Buffer[Impandence_Buffer_Flag] = ((angle_P)>>8)|(((angle_P)&0xFF)<<8);                //±£´æÏàÎ»²î
+
+		Impandence_Log10[Impandence_Buffer_Flag]=Current_V;
+
 
 		Angle[Impandence_Buffer_Flag] = (float)(angle_P-1820)/10;
 		x = (Angle[Impandence_Buffer_Flag]/180)*PI;    //ÏàÎ»²î×ª»¯Îª»¡¶È
 		//¼ÆËãµ¼ÄÉ
-		Impandence_G[Impandence_Buffer_Flag] = sqrt((((double)Impandence_Value_Buffer)*((double)Impandence_Value_Buffer))/(1+tan(x)*tan(x)));
-		XJ_Temp = Impandence_Value_Buffer - Impandence_G[Impandence_Buffer_Flag];
+
+		//Impandence_G[Impandence_Buffer_Flag] = sqrt((((double)Impandence_Value_Buffer)*((double)Impandence_Value_Buffer))/(1+tan(x)*tan(x)));
+		//XJ_Temp = Impandence_Value_Buffer - Impandence_G[Impandence_Buffer_Flag];
+		XJ_Temp = Impandence_Value_Buffer - sqrt((((double)Impandence_Value_Buffer)*((double)Impandence_Value_Buffer))/(1+tan(x)*tan(x)));
+
+
 		Impandence_G_Buffer[Impandence_Buffer_Flag] = Impandence_Value_Buffer + XJ_Temp;            //±£´æµ¼ÄÉ
 
 		if(Impandence_Buffer_Flag==0)
@@ -994,7 +1021,7 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 	Current_Fre = Current_Fre/1000;
 
 	GPIO_ResetBits(GPIOE,GPIO_Pin_10);
-  GPIO_SetBits(GPIOE,GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_11|GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);
+  	GPIO_SetBits(GPIOE,GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_11|GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);
 	Delayus(5000000);
 
 	ad9833_out(1000,2);           //1kHzÊä³ö
@@ -1012,7 +1039,8 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 
 	/***********************************************************************************/
 	for(i=0;i<10;i++)
-	{
+	{   
+	    Impandence_Log10[i]= Impandence_Log10[50];
 		Angle_Buffer[i] = Angle_Buffer[10];
 		Impandence_Buffer[i] = Impandence_Buffer[10];
 	}
@@ -1032,7 +1060,42 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 			MaxValue_Flag = i_flag;                             //×î´ó×è¿¹¶ÔÓ¦µÄÏÂ±ê
 		}
 	}
+	for(i_flag=0; i_flag<1000; i_flag++)
+			{
+				Impandence_Buffer2[i_flag] = ((u16)(log10((double)Impandence_Buffer[i_flag])*1000))>>8|((u16)(log10((double)Impandence_Buffer[i_flag])*1000)&0xff)<<8;
+			}
+	Impandence_Log10_Max = log10((double)Impandence_Value_Max)*1000;
+	Impandence_Log10_Min = log10((double)Impandence_Value)*1000;
 
+
+
+	if(Display_Mode_Flag==1){
+		
+		chart1_axis_max =(u16)(Impandence_Value_Max>>16);
+		chart1_axis_min = (u16)(Impandence_Value>>16);
+	
+		chart2_axis_max =  log10((double)Impandence_Value_Max)*1000;
+		chart2_axis_min = log10((double)Impandence_Value)*1000;
+		for(i_flag=0; i_flag<1000; i_flag++)
+		{
+			chart1[i_flag] = (u16)(Impandence_Buffer[i_flag]>>16);
+		}
+		//memcpy(chart1,Impandence_Buffer2,sizeof(u16)*2048);
+		memcpy(chart2s,Angle_Buffer,sizeof(s16)*2048);
+
+	}
+
+	if(Display_Mode_Flag==0){
+		//Impandence_Log10_Max = log10((double)Impandence_Value_Max)*1000;
+		//Impandence_Log10_Min = log10((double)Impandence_Value)*1000
+		
+		memcpy(chart1,Impandence_Buffer2,sizeof(u16)*2048);
+		memcpy(chart2s,Angle_Buffer,sizeof(s16)*2048);
+		chart1_axis_max =  log10((double)Impandence_Value_Max)*1000;
+		chart1_axis_min = log10((double)Impandence_Value)*1000;
+		chart2_axis_max =  log10((double)Impandence_Value_Max)*1000;
+		chart2_axis_min = log10((double)Impandence_Value)*1000;
+	   }	
 	x = (Angle[MinValue_Flag]/180)*PI;           //×îÐ¡×è¿¹¶ÔÓ¦µÄÏàÎ»²î»¡¶ÈÖµ
 	//¼ÆËã×îÐ¡×è¿¹
 	Impandence_Value_Min = sqrt((((double)Impandence_Value)*((double)Impandence_Value))/(1+tan(x)*tan(x)));
@@ -1046,8 +1109,8 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 
 	Fre_Max = Fre_Buffer[MaxValue_Flag];           //×î´ó×è¿¹¶ÔÓ¦µÄÆµÂÊ
 	Fre_Min = Fre_Buffer[MinValue_Flag];           //×îÐ¡×è¿¹¶ÔÓ¦µÄÆµÂÊ
-	Impandence_Log10_Max = log10((double)Impandence_Value_Max)*1000;
-	Impandence_Log10_Min = log10((double)Impandence_Value)*1000;
+	//Impandence_Log10_Max = log10((double)Impandence_Value_Max)*1000;
+	//Impandence_Log10_Min = log10((double)Impandence_Value)*1000;
 
 	SetProgressValue(0,24,100);
 	sprintf((char*)buf,"%d",100);
@@ -1087,7 +1150,7 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 //		}
 
 		//½«×è¿¹×ª»¯Îª¶ÔÊýÖµ
-		Impandence_Buffer2[i_flag] = ((u16)(log10((double)Impandence_Buffer[i_flag])*1000))>>8|((u16)(log10((double)Impandence_Buffer[i_flag])*1000)&0xff)<<8;
+//		Impandence_Buffer2[i_flag] = ((u16)(log10((double)Impandence_Buffer[i_flag])*1000))>>8|((u16)(log10((double)Impandence_Buffer[i_flag])*1000)&0xff)<<8;
 	}
 
 	Qm = (double)Fre_Min/fd;           //¼ÆËãÆ·ÖÊÒòËØ
@@ -1154,9 +1217,113 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 	AD9833_Init();
 	
 
-	return 1;
+	return 0;
 }
 
+/*****************************************************************
+ÓëÉè¶¨Öµ±È½Ï
+ *****************************************************************/
+
+ int CampareandAlarm(double num1,double num2,double num3,double num4,double num5,double num6,double num7,double num8,double num9)
+ {
+ 
+   if((num1<xiezhen_minfreq)||(num1>xiezhen_maxfreq))	
+   	{
+		return 1;
+   	}
+	else if((num2<fanxiezhen_minfreq)||(num2>fanxiezhen_maxfreq))
+   	{
+		return 1;
+   	}
+	else if((num3<dongtai_minresis)||(num3>dongtai_maxresis))
+   	{
+		return 1;
+   	}
+	else if((num4<jingtai_mincapac)||(num4>jingtai_maxcapac))
+   	{
+		return 1;
+   	}
+	   if((num5<ziyou_mincapac)||(num5>ziyou_maxcapac))
+   	{
+		return 1;
+   	}
+	else if((num6<dongtai_mincapac)||(num6>dongtai_maxcapac)) 
+   	{
+		return 1;
+   	}
+	else if((num7<dongtai_minprod)||(num7>dongtai_maxprod))	
+   	{
+		return 1;
+   	}
+	else if((num8<fanxiezhen_minzukang)||(num8>fanxiezhen_maxzukang))
+   	{
+		return 1;
+   	}
+	else if((num9<pinzhiyinshu_min)||(num9>pinzhiyinshu_max))	
+   	{
+		return 1;
+   	}
+   	else
+   		return 0;
+  
+ } 
+
+ void chart(uint16 display_flag)
+ {
+		unsigned char Buff[] = {0};
+		
+      	
+        sprintf((char*)Buff,"%-7.0f",(double)start_fre);   
+		SetTextValue(0,8,Buff);	
+
+		if(display_flag==0){
+			sprintf((char*)Buff,"%-7.0f",(double)start_fre);
+			SetTextValue(0,31,Buff);  
+			sprintf((char*)Buff,"%-7.0f",(double)end_fre);
+			SetTextValue(0,32,Buff);  
+			sprintf((char*)Buff,"%-7.0f",(double)start_fre);
+			SetTextValue(0,34,Buff);  
+			sprintf((char*)Buff,"%-7.0f",(double)end_fre);
+			SetTextValue(0,35,Buff);
+			
+         	GraphSetViewport(0,23,0,33,0,5);   
+			GraphSetViewport(0,33,0,33,chart1_axis_max-(185*(chart1_axis_max-chart1_axis_min)/180),18000/(chart1_axis_max-chart1_axis_min));		 //5-185
+		 }
+		if(display_flag==1){
+			sprintf((char*)Buff,"%-7.0f",(double)start_fre);
+			SetTextValue(0,31,Buff);  
+			sprintf((char*)Buff,"%-7.0f",(double)end_fre);
+			SetTextValue(0,32,Buff);  
+			sprintf((char*)Buff,"%-7.0f",(double)start_fre);
+			SetTextValue(0,34,Buff);  
+			sprintf((char*)Buff,"%-7.0f",(double)end_fre);
+			SetTextValue(0,35,Buff);
+			
+        	GraphSetViewport(0,23,0,33,0,5);    
+			GraphSetViewport(0,33,0,33,chart1_axis_max-(185*(chart1_axis_max-chart1_axis_min)/180),18000/(chart1_axis_max-chart1_axis_min));		 //5-185
+			
+		 }
+		  TIM_Cmd(TIM2, ENABLE);
+
+	  		while (1)
+	  		{	
+				if ((Time_100Ms>0)&&(Time_100Ms<=1))
+				{
+				GraphChannelDataInsert(0,33,0,(u8*)chart1,2000);
+				}
+				else if ((Time_100Ms>1) && (Time_100Ms<3))
+				{
+				GraphChannelDataInsert(0,23,0,(u8*)chart2s,2000);
+				}
+				else if (Time_100Ms >= 3)
+				{
+				Time_100Ms = 0;
+				break;
+				}
+			}
+			TIM_Cmd(TIM2, DISABLE);
+	 		
+ }
 /**********************************************************************
 º¯ÊýÃû³Æ: void PhaseLock(void)
 ¹¦    ÄÜ: É¨Æµ£ºÍ¨¹ýÆµÂÊÁ¬¼Ó¡¢ÀÛ¼õ10´ÎÔì³ÉµÄÏàÎ»²î·½ÏòµÄ¸Ä±ä£¬ÅÐ¶¨ÊÇ·ñËøÏà³É¹¦
@@ -1167,48 +1334,30 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage)
 {
 //	u16 t;
-	if (Sweep(Start_Fre, End_Fre, Voltage) == 1)
-	{
-//		for(t=0;t<1000;t++)
-//		{
-//			USART2_printf("%d \r\n",Impandence_Buffer2[t]);
-//			
-//		}
-//		for(t=0;t<800;t++)
-//		{
-//			USART2_printf("%d \r\n",Angle_Buffer[t]);
-//			
-//		}
-		GraphSetViewport(0,23,0,33,0,5);    //ÏàÎ»ÇúÏß
-		GraphSetViewport(0,33,0,33,Impandence_Log10_Max-(185*(Impandence_Log10_Max-Impandence_Log10_Min)/180),18000/(Impandence_Log10_Max-Impandence_Log10_Min));		 //5-185
-		TIM_Cmd(TIM2, ENABLE);
+	AnimationPlayFrame(0,25,1); 
 
-		while (1)
-		{
-			if ((Time_100Ms>0)&&(Time_100Ms<=1))
-			{
-				GraphChannelDataInsert(0,23,0,(u8*)Angle_Buffer,2000);
-			}
-			else if ((Time_100Ms>1) && (Time_100Ms<3))
-			{
-				GraphChannelDataInsert(0,33,0,(u8*)Impandence_Buffer2,2000);
-			}
-			else if (Time_100Ms >= 3)
-			{
-				Time_100Ms = 0;
-				break;
-			}
-		}
-		TIM_Cmd(TIM2, DISABLE);
-	}
-	else
-	{
-		Stop_Button();
+	if (Sweep(Start_Fre, End_Fre, Voltage) == 1)
+	{   Stop_Button();
 		Impandence_Buffer_Flag = 0;
 
 		GPIO_ResetBits(GPIOE,GPIO_Pin_15);
     GPIO_SetBits(GPIOE,GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_10|GPIO_Pin_11|GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14);
+			
 	}
+	else
+	{
+		chart(Display_Mode_Flag);//
+		if(CampareandAlarm((double)Fre_Min,(double)XZ_Impandence/1000 * 1.14651,(double)C0,(double)L1 * 1.45396,
+			(double)Fre_Min,(double)XZ_Impandence/1000 * 1.14651,(double)C0,(double)L1 * 1.45396,(double)L1 * 1.45396)==1)//¡¤¡äD3??¡Á¨¨?1?¡¥¨¬?¦Ì?¡Á¨¨?2¨¬?¦Ì?¨¨Y?¡¥¨¬?¦Ì??D
+			{   SetBuzzer(60);
+			    AnimationPlayFrame(0,26,1); 
+				
+			}else
+			{   
+			    AnimationPlayFrame(0,26,2); 
+			}
+	}
+	AnimationPlayFrame(0,25,0); 
 }
 
 /**********************************************************************

@@ -52,17 +52,31 @@ extern u32 start_fre;                       /*定义起始频率   */
 extern u32 end_fre;                         /*定义终止频率   */
 extern u32 dac_value;                       /*定义DAC初值    */
 extern u32 file_name;                   //DGUT定义文件名初值
+extern u32 number_menu;                     /*定义显示菜单选项号码*/
 
 /*****液晶屏定义变量*****/
-extern u32 min_freq;                       /*定义起始频率   */
-extern u32 max_fre;                         /*定义终止频率   */
-extern u32 min_resis;                       /*定义最小电阻   */
-extern u32 max_resis;                         /*定义最大电阻   */
-extern u32 min_capac;                       /*定义最小电容*/
-extern u32 max_capac;                         /*定义最大电容   */
-extern u32 min_induc;                       /*定义最小电感   */
-extern u32 max_indut;                         /*定义最大电感   */
+extern u32 xiezhen_minfreq;                       /*定义谐振最小频率   */
+extern u32 xiezhen_maxfreq;                         /*定义谐振最大频率   */
+extern u32 fanxiezhen_minfreq;                       /*定义反谐振最小频率   */
+extern u32 fanxiezhen_maxfreq;                         /*定义反谐振最大频率   */
 
+extern u32 dongtai_minresis;                       /*定义动态最小电阻   */
+extern u32 dongtai_maxresis;                         /*定义动态最大电阻   */
+
+extern u32 jingtai_mincapac;                       /*定义静态最小电容*/
+extern u32 jingtai_maxcapac;                         /*定义静态最大电容   */
+extern u32 ziyou_mincapac;                       /*定义自由最小电容*/
+extern u32 ziyou_maxcapac;                         /*定义自由最大电容   */
+extern u32 dongtai_mincapac;                       /*定义动态最小电容*/
+extern u32 dongtai_maxcapac;                         /*定义动态最大电容   */
+extern u32 dongtai_minprod;                       /*定义动态最小电感*/
+extern u32 dongtai_maxprod;                         /*定义动态最大电感   */
+
+
+extern u32 fanxiezhen_minzukang;                       /*定义最小反谐振阻抗   */
+extern u32 fanxiezhen_maxzukang;                         /*定义最大反谐振阻抗*/
+extern u32 pinzhiyinshu_min;                       /*定义最小品质因数   */
+extern u32 pinzhiyinshu_max;                         /*定义最大品质因数*/
 
 
 
@@ -76,6 +90,7 @@ void OnRecvSlider(PCTRL_MSG msg,qsize size);
 void OnRecvMeter(PCTRL_MSG msg,qsize size);
 void OnRecvAnimation(PCTRL_MSG msg,qsize size);
 void OnRecCurrentScreen(PCTRL_MSG msg,qsize size);
+void OnRecmenu(PCTRL_MSG msg,qsize size);
 
 extern void Delayus(__IO uint32_t kCount);
 extern void OnRecvChangeScreen(uint16_t screen_id);
