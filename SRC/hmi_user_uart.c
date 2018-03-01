@@ -144,6 +144,9 @@ void Message_Deal(qsize  size)
 						case kCtrlText:
 							OnRecvText(msg,size);                  /*文本控件处理         */
 							break; 
+						case kCtrlmenu:								/*菜单控件处理         */
+							OnRecmenu(msg,size);
+							break;
 						case kCtrlProgress:
 							//OnRecvProgress(msg,size);            /*进度条控件处理       */
 							break; 
@@ -178,7 +181,7 @@ void OK_Button(void)
 		StarFre_Control_Flag = 0;
 		EndFre_Control_Flag = 0;
 		Dac_Control_Flag = 0;
-
+		AnimationStop(0,29);AnimationStop(0,26);   //停止超限指示灯闪烁
 		if(end_fre > start_fre)
 		{
 			ShowControl(0,3,0);        //启动按钮
@@ -249,6 +252,7 @@ void ClearScreen_Button(void)
         ShowControl(0,27,0); 
 		ShowControl(0,28,0);
 		queue_reset();
+		AnimationStop(0,29);AnimationStop(0,26);  //停止超限指示灯闪烁
 		Delayus(100000);
 	}
 }
