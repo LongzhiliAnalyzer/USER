@@ -246,7 +246,7 @@ FS          R1        F1     	\r\n";
 	strcat((char *)write_test, (char *)buf);
 	sprintf((char*)buf,"%-10.1f",(double)Fre_F1);//半功率点F1
 	strcat((char *)write_test, (char *)buf);
-	strcat((char *)write_test, "\r\n");
+	//strcat((char *)write_test, "\r\n");
 
 	
 	
@@ -290,33 +290,34 @@ FS          R1        F1     	\r\n";
 		//printf("creat file  suc\r\n");
 		znFAT_Flush_FS();						//刷新U盘
 		delay_ms(10);
+		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		res=znFAT_WriteData(&fileinfo,sizeof(Head_String),Head_String); 	//写入数据
 		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,sizeof(write_test),write_test); 	                    //写入数据
-		//res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
+		res=znFAT_WriteData(&fileinfo,sizeof(write_test),write_test); 	    //写入数据
+		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		if(!res)		printf("fail to write data.\n");	
 
 		res=znFAT_WriteData(&fileinfo,sizeof(Head_String1),Head_String1); 	//写入数据
 		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,50,write_test1); 	                    //写入数据
+		res=znFAT_WriteData(&fileinfo,sizeof(write_test1),write_test1); 	//写入数据
 		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		if(!res)		printf("fail to write data.\n");	
 
 		res=znFAT_WriteData(&fileinfo,sizeof(Head_String2),Head_String2); 	//写入数据
 		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,50,write_test2);                  	//写入数据
+		res=znFAT_WriteData(&fileinfo,sizeof(write_test2),write_test2);     //写入数据
 		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		if(!res)		printf("fail to write data.\n");	
 		
 		res=znFAT_WriteData(&fileinfo,sizeof(Head_String3),Head_String3); 	//写入数据
 		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,50,write_test3); 	                    //写入数据
+		res=znFAT_WriteData(&fileinfo,sizeof(write_test3),write_test3); 	//写入数据
 		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		if(!res)		printf("fail to write data.\n");	
 		
 		res=znFAT_WriteData(&fileinfo,sizeof(Head_String4),Head_String4); 	//写入数据
 		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,50,write_test4); 	                    //写入数据
+		res=znFAT_WriteData(&fileinfo,sizeof(write_test4),write_test4); 	//写入数据
 		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		if(!res)		printf("fail to write data.\n");	
 
@@ -434,6 +435,7 @@ UINT8 buf1[15]="123";
 UINT8 buf2[15]="123";
 UINT8 buf3[15]="123\r\n";
 UINT8 buf4[48]={0};
+UINT8 ENTER[]="  \r\n";
 	unsigned char buf[] = {0};
 	u8 res=0;
 	UINT32 len=0;
@@ -487,13 +489,14 @@ UINT8 buf4[48]={0};
 			strcat((char *)buf4,(char*)buf1);
 			strcat((char *)buf4,(char*)buf2);
 			strcat((char *)buf4,(char*)buf3);
-			strcat((char *)buf4, "\r\n");
+			//strcat((char *)buf4, "\r\n");
 			
 //			res=znFAT_WriteData(&fileinfo,sizeof(buf1),buf1); 	//写入数据
 //			delay_ms(20);
 //			res=znFAT_WriteData(&fileinfo,sizeof(buf2),buf2); 	//写入数据
 //			delay_ms(20);
 			res=znFAT_WriteData(&fileinfo,sizeof(buf4),buf4); 	//写入数据
+			res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 			delay_ms(20);
 //			res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	//写入数据
 //			delay_ms(20);
