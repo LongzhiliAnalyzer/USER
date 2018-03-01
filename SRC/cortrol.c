@@ -62,12 +62,12 @@ float Current_ARes =0.0;                         /*电流标记*/
 
 s32 angle_P = 0;
 
-u32 Impandence_Buffer[2048] = {0};               /*定义一个大的数组，用于保存扫频过程中得到的阻抗值*/
-u16 Impandence_Buffer2[2048] = {0};              /*定义一个大的数组，用于保存对数转换后的阻抗值*/
-u16 Impandence_Log10[2048] = {0};
-s16 Angle_Buffer[2048] = {0};                    /*定义一个大的数组，用于保存扫频过程中得到的相位值（未经转换）*/
-float Angle[2048] = {0.0};                       /*定义一个大的数组，用于保存扫频过程中得到的相位值*/
-u32 Fre_Buffer[2048] = {0};                      /*保存扫频过程中的频率点数*/
+u32 Impandence_Buffer[1024] = {0};               /*定义一个大的数组，用于保存扫频过程中得到的阻抗值*/
+u16 Impandence_Buffer2[1024] = {0};              /*定义一个大的数组，用于保存对数转换后的阻抗值*/
+u16 Impandence_Log10[1024] = {0};
+s16 Angle_Buffer[1024] = {0};                    /*定义一个大的数组，用于保存扫频过程中得到的相位值（未经转换）*/
+float Angle[1024] = {0.0};                       /*定义一个大的数组，用于保存扫频过程中得到的相位值*/
+u32 Fre_Buffer[1024] = {0};                      /*保存扫频过程中的频率点数*/
 u16 Impandence_Buffer_Flag = 0;                  /*用于记录扫频的位置*/
 u32 Impandence_Value_Max = 0;                    /*最大阻抗值*/
 u32 Impandence_Value_Min = 0;                    /*最小阻抗值*/
@@ -320,43 +320,41 @@ FS          R1        F1     	\r\n";
 		//znFAT_Flush_FS();						//刷新U盘
 //		delay_ms(50);
 		//for(jj = 0; jj < 2; jj++)
-		{
-			
-			jj=0;
-			delay_ms(50);
-			for (i = 10*jj; i < (1+10*jj);i++)
+
+		jj=0;
+		delay_ms(50);
+		for (i = 0; i < 1000 ;i++)
+		{	
+			sprintf((char*)buf2,"%-10.1f",(double)Impandence_Buffer2[i]);
+			for(a=0;a<sizeof(buf2);a++)	//将参数转为字符存入数组
 			{
-				
-				sprintf((char*)buf2,"%-10.1f",(double)Impandence_Buffer2[i]);
-				for(a=0;a<sizeof(buf2);a++)	//将参数转为字符存入数组
-				{
-					write_data[a]=buf2[a];			
-				}
-				strcat((char *)write_data, "\r\n");
-				delay_ms(50);
-				res=znFAT_WriteData(&fileinfo,sizeof(write_data),(UINT8 *)write_data); 	                    //写入数据
-				//i=i+10;
-				if(!res)	
-				//	i=i+10;//	printf("fail to write data.\n");
-//				SetProgressValue(0,24, i*0.1);
+				write_data[a]=buf2[a];			
+			}
+			strcat((char *)write_data, "\r\n");
+			delay_ms(50);
+			res=znFAT_WriteData(&fileinfo,sizeof(write_data),(UINT8 *)write_data); 	                    //写入数据
+			//i=i+10;
+			if(!res)	
+			//	i=i+10;//	printf("fail to write data.\n");
+			SetProgressValue(0,24, i*0.1);
 //				sprintf((char*)buf3,"%d",i*0.1);
 //				SetTextValue(0,25,buf3);
-				Delayus(4000000);
-			}	
-			//znFAT_Close_File(&fileinfo);									
-			delay_ms(50);
-			//znFAT_Open_File(&fileinfo,File_Name,0,1);
+			Delayus(4000000);
+		}	
+		//znFAT_Close_File(&fileinfo);									
+		delay_ms(50);
+		//znFAT_Open_File(&fileinfo,File_Name,0,1);
+	
+		//znFAT_Close_File(&fileinfo);
 		
-			//znFAT_Close_File(&fileinfo);
-			
-			delay_ms(50);
-			znFAT_Flush_FS();	//刷新U盘
-			delay_ms(50);
-			
-	//		znFAT_Open_File(&fileinfo,File_Name,0,1);
-		}
-			delay_ms(50);
-			delay_ms(50);
+		delay_ms(50);
+		znFAT_Flush_FS();	//刷新U盘
+		delay_ms(50);
+		
+//		znFAT_Open_File(&fileinfo,File_Name,0,1);
+		
+		delay_ms(50);
+		delay_ms(50);
 
 		Beep_On();         //开蜂鸣器
 	Delayus(400000);
@@ -1284,8 +1282,6 @@ void Send_Data_USB()
 	
 	while(t < 1000)
 	{
-		
-			
 		save_second();	//这个是还没存进去， 可能出现内存溢出或者访问越界或者堆栈溢出
 		delay_ms(100);	
 	}
