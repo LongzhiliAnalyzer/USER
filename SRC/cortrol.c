@@ -319,6 +319,8 @@ FS          R1        F1     	\r\n";
 		if(!res)		printf("fail to write data.\n");
 		res=znFAT_WriteData(&fileinfo,sizeof(write_test4),write_test4); 	//写入数据
 		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
+		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
+		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		if(!res)		printf("fail to write data.\n");	
 
 		res=znFAT_WriteData(&fileinfo,sizeof(write_test5),write_test5); 	//写入数据	
@@ -502,9 +504,9 @@ UINT8 ENTER[]="  \r\n";
 //			delay_ms(20);
 		}
 		
-			Beep_On();         //开蜂鸣器
-			Delayus(200000);
-			Beep_Off();        //关蜂鸣器 
+//			Beep_On();         //开蜂鸣器
+//			Delayus(200000);
+//			Beep_Off();        //关蜂鸣器 
 //		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
 		//printf("%d\r\n",res);
 		znFAT_Close_File(&fileinfo);
@@ -519,10 +521,11 @@ UINT8 ENTER[]="  \r\n";
 	
 	t=t+10;
 	delay_ms(50);
-	Delayus(3000000);
+	//Delayus(3000000);
 	//Delayus(3000000);
 	znFAT_Flush_FS();
-	Delayus(3000000);
+	delay_ms(50);
+	//Delayus(3000000);
 //	SetProgressValue(0,24,t*100/68);
 //	sprintf((char*)buf,"%d",t*100/68);
 //	SetTextValue(0,25,buf); 	
@@ -1437,6 +1440,12 @@ void Send_Data_USB()
 	
 	while(t < 1000)
 	{
+		if(t % 16 == 0)
+		{
+			znFAT_Init();                   //文件系统初始化
+			znFAT_Flush_FS();
+			delay_ms(50);
+		}
 		save_second();	//这个是还没存进去， 可能出现内存溢出或者访问越界或者堆栈溢出
 		delay_ms(100);	
 	}
