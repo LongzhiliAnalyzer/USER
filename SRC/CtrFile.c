@@ -34,7 +34,7 @@ uint16 SavePic_Flag = 0;
 uint16 StarFre_Control_Flag = 0;
 uint16 EndFre_Control_Flag = 0;
 uint16 Dac_Control_Flag = 0;
-uint16 Ok1_Control_Flag = 0;     //DGUT
+uint16 SaveData_Ok_Flag = 0;     //DGUT
 uint16 Display_Mode_Flag = 0;     //显示模式标志位
 
 u32 start_fre = 0;                       /*定义起始频率   */
@@ -182,7 +182,7 @@ void OnRecvButton(PCTRL_MSG msg,qsize size)
 	//DGUT
 	else if(screen_id == 1 && control_id == 3)
 	{
-		Ok1_Control_Flag = 1;
+		SaveData_Ok_Flag = 1;
 	}
 
 	//设置曲线显示模式
