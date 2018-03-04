@@ -34,15 +34,20 @@
 #include <stdarg.h>
 
 // 小板新增部分
-#include "znfat.h"
-#include "delay.h"
 
-struct znFAT_Init_Args Init_Args; //初始化TF卡参数集合
-struct FileInfo fileinfo; //文件信息集合
-struct DateTime dt; 
+#include "delay.h"
+#define CH375HF_NO_CODE
+#include "CH375HFM.H"
+#include "CH375DRV.H"
+#include "stm32f10x.h"
+#include "sys.h"
+
+//struct znFAT_Init_Args Init_Args; //初始化TF卡参数集合
+//struct FileInfo fileinfo; //文件信息集合
+//struct DateTime dt; 
 u8 times=0;
 //u32 file_name=0; already defined in ctrlfile.c
-INT8 File_Name[20]="0";     //{"/youchao/",file_name,".txt"};
+UINT8 File_Name[20]="0";     //{"/youchao/",file_name,".txt"};
 u32 t=0;
 //----小板新增部分 end----
 
@@ -151,278 +156,144 @@ int fputc(int ch, FILE *f)
 #endif 
 
 //////
+void	mStopIfError( UINT8 iError )
+{
+	if ( iError == ERR_SUCCESS ) return;                        /* 操作成功 */
+	printf( "Error: %02X\n", (UINT16)iError );                  /* 显示错误 */
+	while ( 1 ) {
 
+	}
+}
 /********************************
 小板新增部分，用以实现保存功能的函数
 *********************************/
 void save_first()           
 {
+	int i = 0;
+//	UINT8 file[20] = "/001.TXT";
+	char ENTER[] = "\r\n";
+	char write_test0[50] = "0";	 
+	char write_test1[50] = "0";
+	char write_test2[50] = "0";
+	char write_test3[50] = "0";
+	char write_test4[50] = "0";
+	
+	char Head_String[] = "          阻抗分析仪\r\n";
+	char Head_String0[] = "FS        R1        F1\r\n";	
+	char Head_String1[] = "Fp        Zmax      F2\r\n";	
+	char Head_String2[] = "Qm        keff      F2-F1\r\n";	
+	char Head_String3[] = "CT        C1        C0\r\n";	
+	char Head_String4[] = "L1\r\n";
+	char Head_String5[] = "\r\nFre     Imp       Ang\r\n";
 	
 	char buf[50] = {0};
-	char buf2[15] = {0};
-	char sz[10] = {0};
-	unsigned char buf3[] = {0};
-	u32 len=0;
-	u32 i = 0;
-	u16 jj = 0;
-	u8 a=0,b=0,temp=0,temp2=0,res=0;
-	u8 name_head[]="/youchao/";             //创建名为youchao为文件
-	UINT8 ENTER[]="  \r\n";
-	//
-	UINT8 write_data[20] = "0";
-	//
-	UINT8 write_test[50] = {0};	 
-	UINT8 write_test1[50] = "0";
-	UINT8 write_test2[50] = "0";
-	UINT8 write_test3[50] = "0";
-	UINT8 write_test4[50] = "0";
-	UINT8 write_test5[] = "Fre    Imp		Ang\r\n";
-	UINT8 Head_String[] = 
-"           阻抗分析仪         \r\n \
-FS          R1        F1     	\r\n";	
-	UINT8 Head_String1[] = "Fp          Zmax       F2   	\r\n ";	
-	UINT8 Head_String2[] = "Qm          keff       F2-F1     	\r\n ";	
-	UINT8 Head_String3[] = "CT          C1         C0     	\r\n ";	
-	UINT8 Head_String4[] = "L1 \r\n";	
- 	 
+	char file[10] = "\\";
 	
-	for(a=0;a<20;a++)
-		File_Name[a]=0;
-	if(0==znFAT_Device_Init())		    //存储设备初始化		
-       //TIM_Cmd(TIM3, ENABLE);          //打开定时器
-	znFAT_Select_Device(0,&Init_Args);  //选择设备0，也就是我的U盘
-		
-	res=znFAT_Init();                   //文件系统初始化
+	sprintf((char*)buf, "%d", file_name);
+	strcat(file, buf);
+	strcat(file, ".TXT");
 	
-//	dt.date.year=2017;
-
-//dt.date.month=11;
-
-//dt.date.day=25;
-
-//dt.time.hour=11;
-
-//dt.time.min=14;
-
-//dt.time.sec=36;
-	if(!znFAT_Create_Dir("/youchao/",&dt))	
-	{ //printf("creat suc\r\n"); 
-		}		//创建文件夹
-	else	{ //printf("dir has exist.\r\n");
-		}
-	znFAT_Flush_FS();				//刷新U盘
-
-
-	for(a=0;a<sizeof(name_head);a++)	//将“?name_head"赋给“?file_Name“
-	{
-		File_Name[a]=name_head[a];			
-	}
-	//printf("translate\r\n");
-	b=0;
-	
-	if(Time_100Ms_2>100)                      //定时时间10秒，保存错误的话将回到初始状态
-	{
-		Time_100Ms_2=0;
-		TIM3->CNT=0;
-		t=0;
-		times=0;
-		znFAT_Close_File(&fileinfo);
-			
-		TIM_Cmd(TIM3, DISABLE);          //关闭定时器3
-		//printf("trans disconnected\r\n");
-		return;
-	}
-	
-	sprintf((char*)sz, "%d", file_name);
-	
-	for(a=0;a<sizeof(sz);a++)	//将"file_name"赋给“File_Name“
-	{
-		File_Name[9+a]=sz[a];			
-	}
-	//Fre_Min = 10000;
 	sprintf((char*)buf,"%-10.1f",(double)Fre_Min);
-	strcat((char *)write_test, (char *)buf);
-	sprintf((char*)buf,"%-8.2f",(double)XZ_Impandence/1000 * 1.14651);
-	strcat((char *)write_test, (char *)buf);
+	strcpy((char *)write_test0, (char *)buf);
+	sprintf((char*)buf,"%-10.2f",(double)XZ_Impandence/1000 * 1.14651);
+	strcat((char *)write_test0, (char *)buf);
 	sprintf((char*)buf,"%-10.1f",(double)Fre_F1);//半功率点F1
-	strcat((char *)write_test, (char *)buf);
-	//strcat((char *)write_test, "\r\n");
-
+	strcat((char *)write_test0, (char *)buf);
+	strcat((char *)write_test0, "\r\n");
 	
-	
-	
-	sprintf((char*)buf,"%-8.1f",(double)Fre_Max);//反谐振频率
-	strcat((char *)write_test1, (char *)buf);
+	sprintf((char*)buf,"%-10.1f",(double)Fre_Max);//反谐振频率
+	strcpy((char *)write_test1, (char *)buf);
 	sprintf((char*)buf,"%-10.2f",(double)YZ_Impandence/1000000*0.59896); //反谐振阻抗
 	strcat((char *)write_test1, (char *)buf);
 	sprintf((char*)buf,"%-10.1f",(double)Fre_F2); //半功率点F2
 	strcat((char *)write_test1, (char *)buf);
+	strcat((char *)write_test1, "\r\n");
 	
 	sprintf((char*)buf,"%-10.3f",(double)Qm * 1.029);//品质因素
-	strcat((char *)write_test2, (char *)buf);
+	strcpy((char *)write_test2, (char *)buf);
 	sprintf((char*)buf,"%-10.4f",(double)Keff * 0.97); //keff
 	strcat((char *)write_test2, (char *)buf);
 	sprintf((char*)buf,"%-10.3f",(double)fd);
 	strcat((char *)write_test2, (char *)buf);
+	strcat((char *)write_test2, "\r\n");
 	
-	sprintf((char*)buf,"%-8.4f",CT*10000000000);//自由电容
-	strcat((char *)write_test3, (char *)buf);
+	sprintf((char*)buf,"%-10.4f",CT*10000000000);//自由电容
+	strcpy((char *)write_test3, (char *)buf);
 	sprintf((char*)buf,"%-10.4f",(double)C1);     //动态电容
 	strcat((char *)write_test3, (char *)buf);
 	sprintf((char*)buf,"%-10.4f",(double)C0);//静态电容
 	strcat((char *)write_test3, (char *)buf);
+	strcat((char *)write_test3, "\r\n");
 	
 	sprintf((char*)buf,"%-10.3f",(double)L1 * 1.45396); //动态电感
-	strcat((char *)write_test4, (char *)buf);
+	strcpy((char *)write_test4, (char *)buf);
+	strcat((char *)write_test4, "\r\n");
 	
+	strcpy((char *)mCmdParam.Create.mPathName, file);
+	i = CH375FileCreate( );                               /* 新建文件并打开,如果文件已经存在则先删除后再新建 */
+	mStopIfError( i );
 	
-	TIM_Cmd(TIM3, DISABLE);          //关闭定时器3   
-	for(a=0;File_Name[a]!=0;a++);
-	File_Name[a++]=0x2e;                        //这里表示在文件名中后缀加上.txt
-	File_Name[a++]=0x74;
-	File_Name[a++]=0x78;
-	File_Name[a++]=0x74;
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String);
+	mCmdParam.ByteWrite.mByteCount = strlen(Head_String);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
 	
-	//printf("translate ok\r\n");
-	//printf("%s\r\n",File_Name);
-	if(!znFAT_Create_File(&fileinfo,File_Name,&dt))			//创建txt文件
-	{
-		//printf("creat file  suc\r\n");
-		znFAT_Flush_FS();						//刷新U盘
-		delay_ms(10);
-		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
-		res=znFAT_WriteData(&fileinfo,sizeof(Head_String),Head_String); 	//写入数据
-		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,sizeof(write_test),write_test); 	    //写入数据
-		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
-		if(!res)		printf("fail to write data.\n");	
-
-		res=znFAT_WriteData(&fileinfo,sizeof(Head_String1),Head_String1); 	//写入数据
-		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,sizeof(write_test1),write_test1); 	//写入数据
-		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
-		if(!res)		printf("fail to write data.\n");	
-
-		res=znFAT_WriteData(&fileinfo,sizeof(Head_String2),Head_String2); 	//写入数据
-		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,sizeof(write_test2),write_test2);     //写入数据
-		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
-		if(!res)		printf("fail to write data.\n");	
-		
-		res=znFAT_WriteData(&fileinfo,sizeof(Head_String3),Head_String3); 	//写入数据
-		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,sizeof(write_test3),write_test3); 	//写入数据
-		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
-		if(!res)		printf("fail to write data.\n");	
-		
-		res=znFAT_WriteData(&fileinfo,sizeof(Head_String4),Head_String4); 	//写入数据
-		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,sizeof(write_test4),write_test4); 	//写入数据
-		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
-		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
-		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
-		if(!res)		printf("fail to write data.\n");	
-
-		res=znFAT_WriteData(&fileinfo,sizeof(write_test5),write_test5); 	//写入数据	
-		if(!res)		printf("fail to write data.\n");
-		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行		
-		
-		
-		
-		
-			//
-		znFAT_Close_File(&fileinfo);
-		delay_ms(50);
-		znFAT_Flush_FS();						//刷新U盘
-		delay_ms(50);
-		//for(jj = 0; jj < 2; jj++)
-		//znFAT_Open_File(&fileinfo,File_Name,0,1);
-		
-		jj=0;
-		delay_ms(50);
-//		for (i = 0; i < 200 ;i++)
-//		{	
-//			sprintf((char*)buf2,"%-10.1f",(double)Impandence_Buffer2[i]);
-//			for(a=0;a<sizeof(buf2);a++)	//将参数转为字符存入数组
-//			{
-//				write_data[a]=buf2[a];			
-//			}
-//			strcat((char *)write_data, "\r\n");
-			
-			//strcat((char *)buf2, "\r\n");
-			
-			//delay_ms(50);
-			
-			
-			//res=znFAT_WriteData(&fileinfo,sizeof(write_data),(UINT8 *)write_data); 	                    //写入数据
-			
-			
-			//i=i+10;
-			//if(!res)	
-			//	i=i+10;//	printf("fail to write data.\n");
-//			SetProgressValue(0,24, i*0.1);
-//				sprintf((char*)buf3,"%d",i*0.1);
-//				SetTextValue(0,25,buf3);
-
-			//delay_ms(200);
-			//Delayus(4000000);
-		//}	
-		//znFAT_Close_File(&fileinfo);									
-		delay_ms(50);
-		//znFAT_Open_File(&fileinfo,File_Name,0,1);
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String0);
+	mCmdParam.ByteWrite.mByteCount = strlen(Head_String0);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
 	
-		//znFAT_Close_File(&fileinfo);
-		
-		delay_ms(50);
-		znFAT_Flush_FS();	//刷新U盘
-		delay_ms(50);
-		
-//		znFAT_Open_File(&fileinfo,File_Name,0,1);
-		
-		delay_ms(50);
-		delay_ms(50);
-
-		Beep_On();         //开蜂鸣器
-	Delayus(400000);
-	Beep_Off();        //关蜂鸣器 
-		
-		
-		
-	//	znFAT_Close_File(&fileinfo);					                    //关闭文件			
-	//	printf("save_first ok\r\n");
-	}
-	else		                        //如果存在了就打开
-	{
-		//printf("the file has existed");
-	}	
-
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, write_test0);
+	mCmdParam.ByteWrite.mByteCount = strlen(write_test0);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
 	
-
-		
-		//
-	times=1;
-	 
-	t=0;                               //发送0x51表示第一次的数据已经接受完毕
-		
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String1);
+	mCmdParam.ByteWrite.mByteCount = strlen(Head_String1);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
+	
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, write_test1);
+	mCmdParam.ByteWrite.mByteCount = strlen(write_test1);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
+	
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String2);
+	mCmdParam.ByteWrite.mByteCount = strlen(Head_String2);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
+	
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, write_test2);
+	mCmdParam.ByteWrite.mByteCount = strlen(write_test2);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
+	
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String3);
+	mCmdParam.ByteWrite.mByteCount = strlen(Head_String3);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
+	
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, write_test3);
+	mCmdParam.ByteWrite.mByteCount = strlen(write_test3);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
+	
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String4);
+	mCmdParam.ByteWrite.mByteCount = strlen(Head_String4);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
+	
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, write_test4);
+	mCmdParam.ByteWrite.mByteCount = strlen(write_test4);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
+	
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String5);
+	mCmdParam.ByteWrite.mByteCount = strlen(Head_String5);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
+	
 } 
-
-void itoa (int n,char s[])
-{
-int i,j,sign;
-if((sign=n)<0)//????
-n=-n;//?n????
-i=0;
-do{
-       s[i++]=n%10+'0';//??????
-}
-while ((n/=10)>0);//?????
-if(sign<0)
-s[i++]='-';
-s[i]='\0';
-for(j=i;j>=0;j--)//?????????,???????
-       printf("%c",s[j]);
-} 
-
 
 
 
@@ -433,104 +304,34 @@ for(j=i;j>=0;j--)//?????????,???????
 **********************************************************************************/
 void save_second()
 {
-UINT8 buf1[15]="123";
-UINT8 buf2[15]="123";
-UINT8 buf3[15]="123\r\n";
-UINT8 buf4[48]={0};
-UINT8 ENTER[]="  \r\n";
-	unsigned char buf[] = {0};
-	u8 res=0;
-	UINT32 len=0;
-	u16 i=0;
-	int j = 0;
-    u8 a=0;
-	UINT8 write_data[20] = "0";
-
-
-	znFAT_Flush_FS();
-	len = 48;
+	char buf1[15]="0";
+	char buf2[15]="0";
+	char buf3[15]="0";
+	char buf4[48]="0";
+	int i = 0;
+	char buf[50] = {0};
 	
-//	     sprintf((char*)buf2,"%-10.1f",(double)Impandence_Buffer2[t]);
-//				for(a=0;a<sizeof(buf2);a++)	//将参数转为字符存入数组
-//				{
-//					write_data[a]=buf2[a];			
-//				}
-//				strcat((char *)write_data, "\r\n");
+	sprintf((char*)buf1,"%-8d", Fre_Buffer[t]);
+	sprintf((char*)buf2,"%-10d", Impandence_Buffer[t]);
+	sprintf((char*)buf3,"%-8.2f", Angle[t]);
 	
-//	
-//		buf[j] = Fre_Buffer[t];
-//		j++;	
-//		
-//		buf[j] = Impandence_Buffer[t];
-//		j++;	
-//	
-//		buf[j] = Angle[t];
-//		j++;	
+	strcpy((char *)buf4,(char*)buf1);
+	strcat((char *)buf4,(char*)buf2);
+	strcat((char *)buf4,(char*)buf3);
+	strcat((char *)buf4, "\r\n");
 	
-
-		
-	delay_ms(50);
-	//if(!znFAT_Open_File(&fileinfo,File_Name,0,1))			//打开指定的txt文件
-	//{
-		//for(i=10*t;i<(10+10*t);i++)
-		{
-			
-//			USART2_printf("%d   ",Fre_Buffer[i]);               //发送频率
-//				USART2_printf("%d    ",Impandence_Buffer[i]);       //发送阻抗
-//				USART2_printf("%f   \r\n",Angle[i]);		        //发送相位		
-//			sprintf((char*)buf1,"%10d",Fre_Buffer[i]);
-//			sprintf((char*)buf2,"%10d",Impandence_Buffer[i]);
-//			sprintf((char*)buf3,"%10d",(u32)Angle[i]);
-			
-			sprintf((char*)buf1,"%-10d",Fre_Buffer[t]);
-			sprintf((char*)buf2,"%-10d",Impandence_Buffer[t]);
-			sprintf((char*)buf3,"%-10d",( int )(Angle[t]*10));
-			
-			//itoa(i, buf1);
-			
-			strcat((char *)buf4,(char*)buf1);
-			strcat((char *)buf4,(char*)buf2);
-			strcat((char *)buf4,(char*)buf3);
-			//strcat((char *)buf4, "\r\n");
-			
-//			res=znFAT_WriteData(&fileinfo,sizeof(buf1),buf1); 	//写入数据
-//			delay_ms(20);
-//			res=znFAT_WriteData(&fileinfo,sizeof(buf2),buf2); 	//写入数据
-//			delay_ms(20);
-			res=znFAT_WriteData(&fileinfo,sizeof(buf4),buf4); 	//写入数据
-			res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
-			delay_ms(20);
-//			res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	//写入数据
-//			delay_ms(20);
-		}
-		
-//			Beep_On();         //开蜂鸣器
-//			Delayus(200000);
-//			Beep_Off();        //关蜂鸣器 
-//		res=znFAT_WriteData(&fileinfo,sizeof(ENTER),ENTER); 	            //换行
-		//printf("%d\r\n",res);
-		//znFAT_Close_File(&fileinfo);
-	//}
-	//else	
-	//	{
-			
-			//printf("open file fail\r\n");
-	//}
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, buf4);
+	mCmdParam.ByteWrite.mByteCount = strlen(buf4);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	mStopIfError( i );
 	
-	
-	
-	t=t+10;
-	delay_ms(50);
-	//Delayus(3000000);
-	//Delayus(3000000);
-	znFAT_Flush_FS();
-	delay_ms(50);
-	//Delayus(3000000);
-//	SetProgressValue(0,24,t*100/68);
-//	sprintf((char*)buf,"%d",t*100/68);
-//	SetTextValue(0,25,buf); 	
-		
-	
+	t++;
+	if(t % 20 == 0)
+	{
+		SetProgressValue(0,24,t*100/1000);
+		sprintf((char*)buf,"%d",t*100/1000);
+		SetTextValue(0,25,buf);
+	}
 }
 /******************************************************************
 * 函数作用：对数据进行中值滤波
@@ -1433,37 +1234,75 @@ void USART2_IRQHandler()
 void Send_Data_USB()
 {  	
 	unsigned char buf[] = {0};
+	//UINT8 dir[20] = "/SAVE";
+	UINT8 file[20] = "/001.TXT";
 	u16 i=0;	
+	u16 j = 101;
 	ShowControl(0,28,1); 	
 	
-	save_first();				//格式还有问题
+	delay_init();
+	CH375_Init();
+	CH375LibInit( );
+
+	while ( CH375DiskStatus < DISK_CONNECT ) {            /* 查询CH375中断并更新中断状态,等待U盘插入 */
+		if ( CH375DiskConnect( ) == ERR_SUCCESS ) break;  /* 有设备连接则返回成功,CH375DiskConnect同时会更新全局变量CH375DiskStatus */
+		delay_ms( 100 );
+	}
+	delay_ms(200);
 	
-	znFAT_Open_File(&fileinfo,File_Name,0,1);
-	znFAT_Flush_FS();
+	printf("disk init\n");
+	for ( i = 0; i < 5; i ++ ) {                          /* 有的U盘总是返回未准备好,不过可以被忽略 */
+		delay_ms( 100 );
+		printf( "Ready ?\n" );
+		if ( CH375DiskReady( ) == ERR_SUCCESS ) break;    /* 查询磁盘是否准备好 */
+	}
+	
+	save_first();
+	
+	t = 0;
 	while(t < 1000)
 	{
-		save_second();	//这个是还没存进去， 可能出现内存溢出或者访问越界或者堆栈溢出
-		if(t % 16 == 0)
-		{
-			znFAT_Close_File(&fileinfo);
-			znFAT_Flush_FS();
-			delay_ms(50);
-			//znFAT_Init();                   //文件系统初始化
-			znFAT_Open_File(&fileinfo,File_Name,0,1);
-			delay_ms(50);
-		}
-		delay_ms(100);	
+		save_second();
 	}
-	delay_ms(100);
-	delay_ms(100);
-	delay_ms(100);
+	
+	mCmdParam.Close.mUpdateLen = 1;                       /* 不要自动计算文件长度,如果自动计算,那么该长度总是CH375vSectorSize的倍数 */
+	i = CH375FileClose( );
+	mStopIfError( i );	
+
+//	strcpy((char *)mCmdParam.Create.mPathName, "\\TITLE.TXT");   	//(文件名必须大写,且不能超过8个字符，后缀不能超过3个字符)
+
+//	
+//	i = CH375FileCreate( );                               /* 新建文件并打开,如果文件已经存在则先删除后再新建 */
+//	mStopIfError( i );
+//	
+//	for (t = 0; t < 1000; t++)
+//	{
+//	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, "\r\n");
+//	mCmdParam.ByteWrite.mByteCount = strlen("\r\n");
+//	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+//	mStopIfError( i );
+//	
+//	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, "abcde");
+//	mCmdParam.ByteWrite.mByteCount = strlen("abcde");                   /* 指定本次写入的字节数,单次读写的长度不能超过MAX_BYTE_IO */
+//	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+//	mStopIfError( i );
+//	}
+//	
+//	mCmdParam.Close.mUpdateLen = 1;                       /* 不要自动计算文件长度,如果自动计算,那么该长度总是CH375vSectorSize的倍数 */
+//	i = CH375FileClose( );
+//	mStopIfError( i );		
+	
 
 	t = 0;
 	
 	SetProgressValue(0,24,100);
 	sprintf((char*)buf,"%d",100);
 	SetTextValue(0,25,buf);
-	Delayus(4000000);
+	//Delayus(4000000);
+	
+	delay_ms(500);
+//	delay_ms(100);
+//	delay_ms(100);
 	  
 	SetScreen(3);	     //显时保存成功的界面
 	Beep_On();         //开蜂鸣器

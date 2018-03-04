@@ -452,7 +452,7 @@ void CPU_Init(void)
 int main ()
 {
 	qsize  SIZE = 0;
-	
+	u16 j = 77;
 	CPU_Init();
 	AD9833_Init();
   	queue_reset();					              /*清空串口接收缓冲区*/
@@ -462,10 +462,10 @@ int main ()
 	Delayus(3000000);
 	
 	/* 小板新增 */
-	delay_init();
-	CH375_Configuration();
-	CH375_Init();
 	
+	//CH375_Configuration();
+
+	SetTextValue(0,8,(char *)j);
   while (1)
   {
 		if(Ok_Control_Flag == 0)
