@@ -186,29 +186,61 @@ void OnRecvButton(PCTRL_MSG msg,qsize size)
 	}
 
 	//设置曲线显示模式
+
+	
+	else if(screen_id == 5 && control_id == 21)
+	{
+			
+		 xiezhen_minfreq = 0;	 SetTextValue( 5, 2,"0");				   /*定义谐振最小频率	*/
+		 xiezhen_maxfreq = 0xFFFFFFFF;	 SetTextValue( 5, 11,"999999");					  /*定义谐振最大频率   */
+		 fanxiezhen_minfreq = 0;  SetTextValue( 5, 3,"0");					  /*定义反谐振最小频率   */
+		 fanxiezhen_maxfreq = 0xFFFFFFFF; SetTextValue( 5, 12,"999999");						 /*定义反谐振最大频率	 */
+		 dongtai_minresis = 0;	 SetTextValue( 5, 4,"0");	/*定义动态最小电阻	 */
+		 dongtai_maxresis = 0xFFFFFFFF;	 SetTextValue( 5, 13,"999999");   /*定义动态最大电阻	*/
+		
+		 jingtai_mincapac = 0;	 SetTextValue( 5, 5,"0");/*定义静态最小电容*/
+		 jingtai_maxcapac = 0xFFFFFFFF; SetTextValue( 5, 14,"999999");		   /*定义静态最大电容	*/
+		 ziyou_mincapac = 0; 	 SetTextValue( 5, 6,"0");	  /*定义自由最小电容*/
+		 ziyou_maxcapac = 0xFFFFFFFF; SetTextValue( 5, 15,"999999");		 /*定义自由最大电容   */
+		 dongtai_mincapac = 0;	 SetTextValue( 5, 7,"0");/*定义动态最小电容*/
+		 dongtai_maxcapac = 0xFFFFFFFF; SetTextValue( 5, 16,"999999");	   /*定义动态最大电容	*/
+		 dongtai_minprod = 0;	 SetTextValue( 5, 8,"0");   /*定义动态最小电感*/
+		 dongtai_maxprod = 0xFFFFFFFF;	 SetTextValue( 5, 17,"999999");		  /*定义动态最大电感   */
+		
+		 fanxiezhen_minzukang = 0;	 SetTextValue( 5, 9,"0");	/*定义最小反谐振阻抗	*/
+		 fanxiezhen_maxzukang = 0xFFFFFFFF; SetTextValue( 5, 18,"999999");	   /*定义最大反谐振阻抗*/
+		 pinzhiyinshu_min = 0;	 SetTextValue( 5, 10,"0");	/*定义最小品质因数	 */
+		 pinzhiyinshu_max = 0xFFFFFFFF;	 SetTextValue( 5, 19,"999999");		   /*定义最大品质因数*/
+	}
 	else if(screen_id == 14 && control_id == 2)//设置显示模式   1、频率__阻抗log  2、
 	{
 		 Display_Mode_Flag=0;
+		 chart( Display_Mode_Flag);
 	}
 	else if(screen_id == 14 && control_id == 3)//设置显示模式   1、频率——电阻     2、
 	{
 		Display_Mode_Flag=1;
+		chart( Display_Mode_Flag);
 	}
 	else if(screen_id == 14 && control_id == 4)//设置显示模式
 	{
 		Display_Mode_Flag=2;
+		chart( Display_Mode_Flag);
 	}
 	else if(screen_id == 14 && control_id == 5)//设置显示模式
 	{
 		Display_Mode_Flag=3;
+		chart( Display_Mode_Flag);
 	}
 	else if(screen_id == 14 && control_id == 6)//设置显示模式
 	{
 		Display_Mode_Flag=4;
+		chart( Display_Mode_Flag);
 	}
 	else if(screen_id == 14 && control_id == 7)//设置显示模式
 	{
 		Display_Mode_Flag=5;
+		chart( Display_Mode_Flag);
 	}
 	
 }
@@ -349,7 +381,7 @@ void OnRecvText(PCTRL_MSG msg, qsize size)
 			jingtai_mincapac = jingtai_mincapac*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
 		}
 	}
-	else if(screen_id == 6 &&  control_id == 14)						/*取得静态电容的最大值设定*/
+	else if(screen_id == 5 &&  control_id == 14)						/*取得静态电容的最大值设定*/
 	{
 		jingtai_maxcapac = 0;
    		 while(((uint8 *)(&msg->param))[i])

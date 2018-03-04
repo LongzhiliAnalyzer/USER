@@ -73,6 +73,9 @@ s32 angle_P = 0;
 u32 Impandence_Buffer[1024] = {0};               /*定义一个大的数组，用于保存扫频过程中得到的阻抗值*/
 u16 Impandence_Buffer2[1024] = {0};              /*定义一个大的数组，用于保存对数转换后的阻抗值*/
 
+u16 Current_V_Buffer[1024] = {0};
+u16 Current_A_Buffer[1024] = {0};
+
 u16 chart1[1024]={0};
 u16 chart2u[1024]={0};
 s16 chart2s[1024]={0};
@@ -91,7 +94,6 @@ u32 Fre_Buffer[1024] = {0};                      /*保存扫频过程中的频率点数*/
 u16 Impandence_Buffer_Flag = 0;                  /*用于记录扫频的位置*/
 u32 Impandence_Value_Max = 0;                    /*最大阻抗值*/
 u32 Impandence_Value_Min = 0;                    /*最小阻抗值*/
-//u32 Impandence_G[2048] = {0};                    /*   */
 u32 Impandence_G_Buffer[2048] = {0};             /*   */
 u32 XJ_Temp = 0;                                 /*   */
 u32 XZ_Impandence = 0;                           /*   */
@@ -747,6 +749,9 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		Delayus(10000);
 	    ADC1_ValueFilter(20);					                                     //采样得到反馈的电压、电流值
 		Phase_ValueFilter(20);
+		Current_V_Buffer[(Current_Fre-Start_Fre)/FreGain]=Current_V*0.01;
+		Current_A_Buffer[(Current_Fre-Start_Fre)/FreGain]=Current_A*0.2;
+
 		Current_ARes = (float)Current_A/SampleRes;
 
     	Size = queue_find_cmd(cmd_buffer,1024);                            //从缓冲区中获取一条指令
@@ -875,6 +880,15 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 	Impandence_Log10_Max = log10((double)Impandence_Value_Max)*1000;
 	Impandence_Log10_Min = log10((double)Impandence_Value)*1000;
 
+	if(Display_Mode_Flag==2){
+		
+		memcpy(chart1,Current_V_Buffer,sizeof(u16)*1024);
+		memcpy(chart2s,Current_A_Buffer,sizeof(s16)*1024);
+		chart1_axis_max =  log10((double)Impandence_Value_Max)*1000;
+		chart1_axis_min = log10((double)Impandence_Value)*1000;
+		chart2_axis_max =  log10((double)Impandence_Value_Max)*1000;
+		chart2_axis_min = log10((double)Impandence_Value)*1000;
+	   }
 
 
 	if(Display_Mode_Flag==1){
@@ -886,10 +900,9 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		chart2_axis_min = log10((double)Impandence_Value)*1000;
 		for(i_flag=0; i_flag<1000; i_flag++)
 		{
-			chart1[i_flag] = (u16)(Impandence_Buffer[i_flag]>>16);
+			chart1[i_flag] = (u16)(Impandence_Buffer[i_flag]>>16)*0.45;
 		}
-		//memcpy(chart1,Impandence_Buffer2,sizeof(u16)*2048);
-		memcpy(chart2s,Angle_Buffer,sizeof(s16)*2048);
+		memcpy(chart2s,Angle_Buffer,sizeof(s16)*1024);
 
 	}
 
@@ -897,8 +910,8 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		//Impandence_Log10_Max = log10((double)Impandence_Value_Max)*1000;
 		//Impandence_Log10_Min = log10((double)Impandence_Value)*1000
 		
-		memcpy(chart1,Impandence_Buffer2,sizeof(u16)*2048);
-		memcpy(chart2s,Angle_Buffer,sizeof(s16)*2048);
+		memcpy(chart1,Impandence_Buffer2,sizeof(u16)*1024);
+		memcpy(chart2s,Angle_Buffer,sizeof(s16)*1024);
 		chart1_axis_max =  log10((double)Impandence_Value_Max)*1000;
 		chart1_axis_min = log10((double)Impandence_Value)*1000;
 		chart2_axis_max =  log10((double)Impandence_Value_Max)*1000;
@@ -1081,35 +1094,30 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		unsigned char Buff[] = {0};
 		
       	
-        sprintf((char*)Buff,"%-7.0f",(double)start_fre);   
-		SetTextValue(0,8,Buff);	
+		sprintf((char*)Buff,"%-7.0f",(double)chart1_axis_min);
+		SetTextValue(0,31,Buff);  
+		sprintf((char*)Buff,"%-7.0f",(double)chart1_axis_max);
+		SetTextValue(0,32,Buff);  
+		sprintf((char*)Buff,"%-7.0f",(double)chart2_axis_min);
+		SetTextValue(0,34,Buff);  
+		sprintf((char*)Buff,"%-7.0f",(double)chart2_axis_max);
+		SetTextValue(0,35,Buff);
 
 		if(display_flag==0){
-			sprintf((char*)Buff,"%-7.0f",(double)start_fre);
-			SetTextValue(0,31,Buff);  
-			sprintf((char*)Buff,"%-7.0f",(double)end_fre);
-			SetTextValue(0,32,Buff);  
-			sprintf((char*)Buff,"%-7.0f",(double)start_fre);
-			SetTextValue(0,34,Buff);  
-			sprintf((char*)Buff,"%-7.0f",(double)end_fre);
-			SetTextValue(0,35,Buff);
-			
          	GraphSetViewport(0,23,0,33,0,5);   
 			GraphSetViewport(0,33,0,33,chart1_axis_max-(185*(chart1_axis_max-chart1_axis_min)/180),18000/(chart1_axis_max-chart1_axis_min));		 //5-185
 		 }
 		if(display_flag==1){
-			sprintf((char*)Buff,"%-7.0f",(double)start_fre);
-			SetTextValue(0,31,Buff);  
-			sprintf((char*)Buff,"%-7.0f",(double)end_fre);
-			SetTextValue(0,32,Buff);  
-			sprintf((char*)Buff,"%-7.0f",(double)start_fre);
-			SetTextValue(0,34,Buff);  
-			sprintf((char*)Buff,"%-7.0f",(double)end_fre);
-			SetTextValue(0,35,Buff);
-			
         	GraphSetViewport(0,23,0,33,0,5);    
-			GraphSetViewport(0,33,0,33,chart1_axis_max-(185*(chart1_axis_max-chart1_axis_min)/180),18000/(chart1_axis_max-chart1_axis_min));		 //5-185
-			
+			GraphSetViewport(0,33,0,33,0,1);		 //5-185
+		 }
+		if(display_flag==2){
+        	GraphSetViewport(0,23,0,33,0,1);    
+			GraphSetViewport(0,33,0,33,0,1);		 
+		 }
+		if(display_flag==4){
+        	GraphSetViewport(0,23,0,33,0,1);    
+			GraphSetViewport(0,33,0,33,0,1);		
 		 }
 		  TIM_Cmd(TIM2, ENABLE);
 
@@ -1155,8 +1163,8 @@ void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage)
 	else
 	{
 		chart(Display_Mode_Flag);//
-		if(CampareandAlarm((double)Fre_Min,(double)XZ_Impandence/1000 * 1.14651,(double)C0,(double)L1 * 1.45396,
-			(double)Fre_Min,(double)XZ_Impandence/1000 * 1.14651,(double)C0,(double)L1 * 1.45396,(double)L1 * 1.45396)==1)//·′D3??×è?1?ˉì?μ?×è?2ì?μ?èY?ˉì?μ??D
+		if(CampareandAlarm((double)Fre_Min,(double)Fre_Max,(double)XZ_Impandence/1000 * 1.14651,(double)C0,
+			CT*10000000000,(double)C1,(double)L1 * 1.45396,(double)YZ_Impandence/1000000*0.59896,(double)Qm * 1.029)==1)
 			{   SetBuzzer(60);
 			    AnimationPlayFrame(0,26,1); 
 				
