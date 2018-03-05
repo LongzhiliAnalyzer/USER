@@ -42,28 +42,28 @@ u32 end_fre = 0;                         /*定义终止频率   */
 
 
 /*****液晶屏定义变量*****/
-u32 xiezhen_minfreq = 0;                       /*定义谐振最小频率   */
-u32 xiezhen_maxfreq = 0xFFFFFFFF;                         /*定义谐振最大频率   */
-u32 fanxiezhen_minfreq = 0;                       /*定义反谐振最小频率   */
-u32 fanxiezhen_maxfreq = 0xFFFFFFFF;                         /*定义反谐振最大频率   */
+double xiezhen_minfreq = 0;                       /*定义谐振最小频率   */
+double xiezhen_maxfreq = 0xFFFFFFFF;                         /*定义谐振最大频率   */
+double fanxiezhen_minfreq = 0;                       /*定义反谐振最小频率   */
+double fanxiezhen_maxfreq = 0xFFFFFFFF;                         /*定义反谐振最大频率   */
 
-u32 dongtai_minresis = 0;                       /*定义动态最小电阻   */
-u32 dongtai_maxresis = 0xFFFFFFFF;                         /*定义动态最大电阻   */
+double dongtai_minresis = 0;                       /*定义动态最小电阻   */
+double dongtai_maxresis = 0xFFFFFFFF;                         /*定义动态最大电阻   */
 
-u32 jingtai_mincapac = 0;                       /*定义静态最小电容*/
-u32 jingtai_maxcapac = 0xFFFFFFFF;                         /*定义静态最大电容   */
-u32 ziyou_mincapac = 0;                       /*定义自由最小电容*/
-u32 ziyou_maxcapac = 0xFFFFFFFF;                         /*定义自由最大电容   */
-u32 dongtai_mincapac = 0;                       /*定义动态最小电容*/
-u32 dongtai_maxcapac = 0xFFFFFFFF;                         /*定义动态最大电容   */
-u32 dongtai_minprod = 0;                       /*定义动态最小电感*/
-u32 dongtai_maxprod = 0xFFFFFFFF;                         /*定义动态最大电感   */
+double jingtai_mincapac = 0;                       /*定义静态最小电容*/
+double jingtai_maxcapac = 0xFFFFFFFF;                         /*定义静态最大电容   */
+double ziyou_mincapac = 0;                       /*定义自由最小电容*/
+double ziyou_maxcapac = 0xFFFFFFFF;                         /*定义自由最大电容   */
+double dongtai_mincapac = 0;                       /*定义动态最小电容*/
+double dongtai_maxcapac = 0xFFFFFFFF;                         /*定义动态最大电容   */
+double dongtai_minprod = 0;                       /*定义动态最小电感*/
+double dongtai_maxprod = 0xFFFFFFFF;                         /*定义动态最大电感   */
 
 
-u32 fanxiezhen_minzukang = 0;                       /*定义最小反谐振阻抗   */
-u32 fanxiezhen_maxzukang = 0xFFFFFFFF;                         /*定义最大反谐振阻抗*/
-u32 pinzhiyinshu_min = 0;                       /*定义最小品质因数   */
-u32 pinzhiyinshu_max = 0xFFFFFFFF;                         /*定义最大品质因数*/
+double fanxiezhen_minzukang = 0;                       /*定义最小反谐振阻抗   */
+double fanxiezhen_maxzukang = 0xFFFFFFFF;                         /*定义最大反谐振阻抗*/
+double pinzhiyinshu_min = 0;                       /*定义最小品质因数   */
+double pinzhiyinshu_max = 0xFFFFFFFF;                         /*定义最大品质因数*/
 
 u32 dac_value = 0;                       /*定义DAC初值    */
 u32 file_name=0;         //DGUT
@@ -128,7 +128,6 @@ void OnRecvButton(PCTRL_MSG msg,qsize size)
   if(screen_id == 0 && control_id == 3)     /*"确定"的按键被按下了   */
   {
 		Ok_Control_Flag = 1;
-		AnimationPlayFrame(0,2,1);
 		GraphChannelDataClear(0,23,0);
 		GraphChannelDataClear(0,33,0);
 
@@ -140,13 +139,9 @@ void OnRecvButton(PCTRL_MSG msg,qsize size)
 		GetControlValue(0,7);				            /*获取终止频率   */
 		GetControlValue(0,8);				            /*获取DAC的数值	 */	
   }
-	else if(screen_id == 0 && control_id == 4)	/*"停止"的案件被按下   */
+	else if(screen_id == 0 && control_id == 4)	/*"停止"的button被按下   */
 	{
 		Stop_Control_Flag = 1;
-	}
-	else if(screen_id == 0 && control_id == 26)
-	{
-		
 	}
 	else if(screen_id == 0 && control_id == 27)
 	{
@@ -165,6 +160,7 @@ void OnRecvButton(PCTRL_MSG msg,qsize size)
 		}
 		AnimationPlayFrame(0,26,0);
 		AnimationPlayFrame(0,25,0);
+		SetTextValue( 0, 29,"");
 		SetProgressValue(0, 24, 0);
 		GraphChannelDataClear(0,23,0);
 		GraphChannelDataClear(0,33,0);
@@ -173,7 +169,7 @@ void OnRecvButton(PCTRL_MSG msg,qsize size)
 	{
 		SaveData_Flag = 1;	
 		SetProgressValue(0, 24, 0);
-		SetTextValue( 0, 25,"0");
+		//SetTextValue( 0, 25,"0");
 	}
 	else if(screen_id == 0 && control_id == 29)//有疑问！！！
 	{
@@ -215,32 +211,38 @@ void OnRecvButton(PCTRL_MSG msg,qsize size)
 	else if(screen_id == 14 && control_id == 2)//设置显示模式   1、频率__阻抗log  2、
 	{
 		 Display_Mode_Flag=0;
-		 chart( Display_Mode_Flag);
+		 chart(Display_Mode_Flag);
+		 queue_reset();		 //清空串口接收缓冲区
 	}
 	else if(screen_id == 14 && control_id == 3)//设置显示模式   1、频率——电阻     2、
 	{
 		Display_Mode_Flag=1;
-		chart( Display_Mode_Flag);
+		chart(Display_Mode_Flag);
+		queue_reset();		 //清空串口接收缓冲区
 	}
 	else if(screen_id == 14 && control_id == 4)//设置显示模式
 	{
 		Display_Mode_Flag=2;
-		chart( Display_Mode_Flag);
+		chart(Display_Mode_Flag);
+		queue_reset();		 //清空串口接收缓冲区
 	}
 	else if(screen_id == 14 && control_id == 5)//设置显示模式
 	{
 		Display_Mode_Flag=3;
-		chart( Display_Mode_Flag);
+		chart(Display_Mode_Flag);
+		queue_reset();		 //清空串口接收缓冲区
 	}
 	else if(screen_id == 14 && control_id == 6)//设置显示模式
 	{
 		Display_Mode_Flag=4;
-		chart( Display_Mode_Flag);
+		chart(Display_Mode_Flag);
+		queue_reset();		 //清空串口接收缓冲区
 	}
 	else if(screen_id == 14 && control_id == 7)//设置显示模式
 	{
 		Display_Mode_Flag=5;
-		chart( Display_Mode_Flag);
+		chart(Display_Mode_Flag);
+		queue_reset();		 //清空串口接收缓冲区
 	}
 	
 }
@@ -253,6 +255,9 @@ void OnRecvButton(PCTRL_MSG msg,qsize size)
 void OnRecvText(PCTRL_MSG msg, qsize size)
 {
 	uint32 i = 0;
+	u8 multi_para1=10;
+	double multi_para2=1.0;
+   
   screen_id = PTR2U16(&msg->screen_id);         /*获取画面ID */
   control_id = PTR2U16(&msg->control_id);       /*获取控件ID */
 
@@ -317,40 +322,89 @@ void OnRecvText(PCTRL_MSG msg, qsize size)
 	else if(screen_id == 5 &&  control_id == 2)				/*取得谐振频率的最小值设定*/
 	{
 		xiezhen_minfreq = 0;
-    while(((uint8 *)(&msg->param))[i])
+   		 while(((uint8 *)(&msg->param))[i])
 		{
-			xiezhen_minfreq = xiezhen_minfreq*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			xiezhen_minfreq = xiezhen_minfreq*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 11)				/*取得谐振频率的最大值设定*/
 	{
-		
 		xiezhen_maxfreq = 0;
-    while(((uint8 *)(&msg->param))[i])
+   		 while(((uint8 *)(&msg->param))[i])
 		{
-			xiezhen_maxfreq = xiezhen_maxfreq*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			xiezhen_maxfreq = xiezhen_maxfreq*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
-	
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 
 
 	else if(screen_id == 5 &&  control_id == 3)					/*取得反谐振频率的最小值设定*/
 	{
-		
 		fanxiezhen_minfreq = 0;
-    while(((uint8 *)(&msg->param))[i])
+   		 while(((uint8 *)(&msg->param))[i])
 		{
-			fanxiezhen_minfreq = fanxiezhen_minfreq*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			fanxiezhen_minfreq = fanxiezhen_minfreq*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 12)							/*取得反谐振频率的最大值设定*/
 	{
 		
 		fanxiezhen_maxfreq = 0;
-    while(((uint8 *)(&msg->param))[i])
+   		 while(((uint8 *)(&msg->param))[i])
 		{
-			fanxiezhen_maxfreq = fanxiezhen_maxfreq*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			fanxiezhen_maxfreq = fanxiezhen_maxfreq*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 
 
@@ -358,116 +412,297 @@ void OnRecvText(PCTRL_MSG msg, qsize size)
 	else if(screen_id == 5 &&  control_id == 4)						/*取得动态电阻的最小值设定*/
 	{
 		dongtai_minresis = 0;
-    	while(((uint8 *)(&msg->param))[i])
+   		 while(((uint8 *)(&msg->param))[i])
 		{
-			dongtai_minresis = dongtai_minresis*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			dongtai_minresis = dongtai_minresis*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 13)						/*取得动态电阻的最大值设定*/
 	{
 		
 		dongtai_maxresis = 0;
-    	while(((uint8 *)(&msg->param))[i])
+   		 while(((uint8 *)(&msg->param))[i])
 		{
-			dongtai_maxresis = dongtai_maxresis*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			dongtai_maxresis = dongtai_maxresis*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 5)						/*取得静态电容的最小值设定*/
 	{
 		
 		jingtai_mincapac = 0;
-    	while(((uint8 *)(&msg->param))[i])
+   		 while(((uint8 *)(&msg->param))[i])
 		{
-			jingtai_mincapac = jingtai_mincapac*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			jingtai_mincapac = jingtai_mincapac*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 14)						/*取得静态电容的最大值设定*/
 	{
 		jingtai_maxcapac = 0;
    		 while(((uint8 *)(&msg->param))[i])
 		{
-			jingtai_maxcapac = jingtai_maxcapac*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			jingtai_maxcapac = jingtai_maxcapac*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 6)						/*取得自由电容的最小值设定*/
 	{
 		ziyou_mincapac = 0;
    		 while(((uint8 *)(&msg->param))[i])
 		{
-			ziyou_mincapac = ziyou_mincapac*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			ziyou_mincapac = ziyou_mincapac*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 15)						/*取得自由电容的最大值设定*/
 	{
 		ziyou_maxcapac = 0;
    		 while(((uint8 *)(&msg->param))[i])
 		{
-			ziyou_maxcapac = ziyou_maxcapac*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			ziyou_maxcapac = ziyou_maxcapac*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 7)						/*取得动态电容的最小值设定*/
 	{
 		dongtai_mincapac = 0;
    		 while(((uint8 *)(&msg->param))[i])
 		{
-			dongtai_mincapac = dongtai_mincapac*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			dongtai_mincapac = dongtai_mincapac*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
 	}
 	else if(screen_id == 5 &&  control_id == 16)						/*取得动态电容的最大值设定*/
 	{
 		dongtai_maxcapac = 0;
-    	while(((uint8 *)(&msg->param))[i])
+   		 while(((uint8 *)(&msg->param))[i])
 		{
-			dongtai_maxcapac = dongtai_maxcapac*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			dongtai_maxcapac = dongtai_maxcapac*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 		else if(screen_id == 5 &&  control_id == 8)						/*取得动态电感的最小值设定*/
 	{
 		dongtai_minprod = 0;
    		 while(((uint8 *)(&msg->param))[i])
 		{
-			dongtai_minprod = dongtai_minprod*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			dongtai_minprod = dongtai_minprod*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 17)						/*取得动态电感的最大值设定*/
 	{
 		dongtai_maxprod = 0;
-    	while(((uint8 *)(&msg->param))[i])
+   		 while(((uint8 *)(&msg->param))[i])
 		{
-			dongtai_maxprod = dongtai_maxprod*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			dongtai_maxprod = dongtai_maxprod*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 9)						/*取得反谐振阻抗的最小值设定*/
 	{
 		fanxiezhen_minzukang = 0;
    		 while(((uint8 *)(&msg->param))[i])
 		{
-			fanxiezhen_minzukang = fanxiezhen_minzukang*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			fanxiezhen_minzukang = fanxiezhen_minzukang*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 18)						/*取得反谐振阻抗的最大值设定*/
 	{
 		fanxiezhen_maxzukang = 0;
    		 while(((uint8 *)(&msg->param))[i])
 		{
-			fanxiezhen_maxzukang = fanxiezhen_maxzukang*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			fanxiezhen_maxzukang = fanxiezhen_maxzukang*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 10)						/*取得品质因数的最小值设定*/
 	{
 		pinzhiyinshu_min = 0;
    		 while(((uint8 *)(&msg->param))[i])
 		{
-			pinzhiyinshu_min = pinzhiyinshu_min*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			pinzhiyinshu_min = pinzhiyinshu_min*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	else if(screen_id == 5 &&  control_id == 19)						/*取得品质因数的最大值设定*/
 	{
 		pinzhiyinshu_max = 0;
    		 while(((uint8 *)(&msg->param))[i])
 		{
-			pinzhiyinshu_max = pinzhiyinshu_max*10 + (((uint8 *)(&msg->param))[i++] - 0x30);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(((uint8 *)(&msg->param))[i]==0x2E)
+			{
+				multi_para1=1;
+				multi_para2=0.1;
+				i++;continue;
+			}
+			pinzhiyinshu_max = pinzhiyinshu_max*multi_para1 + (double)((((uint8 *)(&msg->param))[i++] - 0x30)*multi_para2);  /*从接收缓冲区取出键盘输入的数字，再转换成十进制数字*/
+			if(multi_para1==1)
+			{
+				multi_para2=multi_para2*0.1;
+			}
 		}
+		multi_para1=10;
+		multi_para2=1.0;
+
 	}
 	
 }

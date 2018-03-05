@@ -55,28 +55,28 @@ extern u32 file_name;                   //DGUT定义文件名初值
 extern u32 number_menu;                     /*定义显示菜单选项号码*/
 
 /*****液晶屏定义变量*****/
-extern u32 xiezhen_minfreq;                       /*定义谐振最小频率   */
-extern u32 xiezhen_maxfreq;                         /*定义谐振最大频率   */
-extern u32 fanxiezhen_minfreq;                       /*定义反谐振最小频率   */
-extern u32 fanxiezhen_maxfreq;                         /*定义反谐振最大频率   */
+extern double xiezhen_minfreq;                       /*定义谐振最小频率   */
+extern double xiezhen_maxfreq;                         /*定义谐振最大频率   */
+extern double fanxiezhen_minfreq;                       /*定义反谐振最小频率   */
+extern double fanxiezhen_maxfreq;                         /*定义反谐振最大频率   */
 
-extern u32 dongtai_minresis;                       /*定义动态最小电阻   */
-extern u32 dongtai_maxresis;                         /*定义动态最大电阻   */
+extern double dongtai_minresis;                       /*定义动态最小电阻   */
+extern double dongtai_maxresis;                         /*定义动态最大电阻   */
 
-extern u32 jingtai_mincapac;                       /*定义静态最小电容*/
-extern u32 jingtai_maxcapac;                         /*定义静态最大电容   */
-extern u32 ziyou_mincapac;                       /*定义自由最小电容*/
-extern u32 ziyou_maxcapac;                         /*定义自由最大电容   */
-extern u32 dongtai_mincapac;                       /*定义动态最小电容*/
-extern u32 dongtai_maxcapac;                         /*定义动态最大电容   */
-extern u32 dongtai_minprod;                       /*定义动态最小电感*/
-extern u32 dongtai_maxprod;                         /*定义动态最大电感   */
+extern double jingtai_mincapac;                       /*定义静态最小电容*/
+extern double jingtai_maxcapac;                         /*定义静态最大电容   */
+extern double ziyou_mincapac;                       /*定义自由最小电容*/
+extern double ziyou_maxcapac;                         /*定义自由最大电容   */
+extern double dongtai_mincapac;                       /*定义动态最小电容*/
+extern double dongtai_maxcapac;                         /*定义动态最大电容   */
+extern double dongtai_minprod;                       /*定义动态最小电感*/
+extern double dongtai_maxprod;                         /*定义动态最大电感   */
 
 
-extern u32 fanxiezhen_minzukang;                       /*定义最小反谐振阻抗   */
-extern u32 fanxiezhen_maxzukang;                         /*定义最大反谐振阻抗*/
-extern u32 pinzhiyinshu_min;                       /*定义最小品质因数   */
-extern u32 pinzhiyinshu_max;                         /*定义最大品质因数*/
+extern double fanxiezhen_minzukang;                       /*定义最小反谐振阻抗   */
+extern double fanxiezhen_maxzukang;                         /*定义最大反谐振阻抗*/
+extern double pinzhiyinshu_min;                       /*定义最小品质因数   */
+extern double pinzhiyinshu_max;                         /*定义最大品质因数*/
 
 
 

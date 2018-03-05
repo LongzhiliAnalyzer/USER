@@ -181,7 +181,6 @@ void OK_Button(void)
 		StarFre_Control_Flag = 0;
 		EndFre_Control_Flag = 0;
 		Dac_Control_Flag = 0;
-		AnimationStop(0,29);AnimationStop(0,26);   //停止超限指示灯闪烁
 		if(end_fre > start_fre)
 		{
 			ShowControl(0,3,0);        //启动按钮
@@ -189,15 +188,6 @@ void OK_Button(void)
 			ShowControl(0,4,1);        //停止按钮
 			ShowControl(0,28,0);        //保存数据按钮
 			GPIO_ResetBits(GPIOA,GPIO_Pin_7);	
-			
-			sprintf((char*)Buff,"%-7.0f",(double)start_fre);
-			SetTextValue(0,31,Buff);   //图表起始频率
-			sprintf((char*)Buff,"%-7.0f",(double)end_fre);
-			SetTextValue(0,32,Buff);   //图表终止频率
-			sprintf((char*)Buff,"%-7.0f",(double)start_fre);
-			SetTextValue(0,34,Buff);   //图表起始频率
-			sprintf((char*)Buff,"%-7.0f",(double)end_fre);
-			SetTextValue(0,35,Buff);   //图表终止频率
 
 			PhaseLock(start_fre*1000, end_fre*1000,(u16)dac_value);
 
@@ -222,6 +212,7 @@ void OK_Button(void)
 	}
 	ShowControl(0,3,1);       //启动按钮
 	ShowControl(0,27,1);      //清屏按钮
+	AnimationPlayFrame(0,25,0); 
 }	
 
 /*********************************************************************************

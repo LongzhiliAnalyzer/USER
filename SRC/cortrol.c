@@ -332,7 +332,7 @@ void save_second()
 	{
 		SetProgressValue(0,24,t*100/1000);
 		sprintf((char*)buf,"%d",t*100/1000);
-		SetTextValue(0,25,buf);
+		//SetTextValue(0,25,buf);
 	}
 }
 /******************************************************************
@@ -879,7 +879,7 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 			}
 	Impandence_Log10_Max = log10((double)Impandence_Value_Max)*1000;
 	Impandence_Log10_Min = log10((double)Impandence_Value)*1000;
-
+/*
 	if(Display_Mode_Flag==2){
 		
 		memcpy(chart1,Current_V_Buffer,sizeof(u16)*1024);
@@ -890,12 +890,10 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		chart2_axis_min = log10((double)Impandence_Value)*1000;
 	   }
 
-
 	if(Display_Mode_Flag==1){
 		
 		chart1_axis_max =(u16)(Impandence_Value_Max>>16);
 		chart1_axis_min = (u16)(Impandence_Value>>16);
-	
 		chart2_axis_max =  log10((double)Impandence_Value_Max)*1000;
 		chart2_axis_min = log10((double)Impandence_Value)*1000;
 		for(i_flag=0; i_flag<1000; i_flag++)
@@ -907,8 +905,6 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 	}
 
 	if(Display_Mode_Flag==0){
-		//Impandence_Log10_Max = log10((double)Impandence_Value_Max)*1000;
-		//Impandence_Log10_Min = log10((double)Impandence_Value)*1000
 		
 		memcpy(chart1,Impandence_Buffer2,sizeof(u16)*1024);
 		memcpy(chart2s,Angle_Buffer,sizeof(s16)*1024);
@@ -916,7 +912,7 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		chart1_axis_min = log10((double)Impandence_Value)*1000;
 		chart2_axis_max =  log10((double)Impandence_Value_Max)*1000;
 		chart2_axis_min = log10((double)Impandence_Value)*1000;
-	   }	
+	   }	*/
 	x = (Angle[MinValue_Flag]/180)*PI;           //最小阻抗对应的相位差弧度值
 	//计算最小阻抗
 	Impandence_Value_Min = sqrt((((double)Impandence_Value)*((double)Impandence_Value))/(1+tan(x)*tan(x)));
@@ -1032,8 +1028,6 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 	SetTextValue(0,13,buf);     //自由电容
 
 
-	AnimationPlayFrame(0,2,0);  //工作状态置位
-
 	ad9833_out(0,2);            //扫频结束禁止DDS输出
 	AD9833_Init();
 	
@@ -1047,7 +1041,6 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 
  int CampareandAlarm(double num1,double num2,double num3,double num4,double num5,double num6,double num7,double num8,double num9)
  {
- 
    if((num1<xiezhen_minfreq)||(num1>xiezhen_maxfreq))	
    	{
 		return 1;
@@ -1092,8 +1085,56 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
  void chart(uint16 display_flag)
  {
 		unsigned char Buff[] = {0};
+		int i_flag=0;
 		
-      	
+
+		GraphChannelDataClear(0,23,0);
+		GraphChannelDataClear(0,33,0);
+		
+		Delayus(100000);
+		GraphChannelAdd(0,23,0,BLUE);			/*添加相位曲线通道	 */
+		GraphChannelAdd(0,33,0,RED);			/*添加阻抗曲线通道	 */
+		Delayus(10000);
+
+
+		if(display_flag==0){
+			memcpy(chart1,Impandence_Buffer2,sizeof(u16)*1024);
+			memcpy(chart2s,Angle_Buffer,sizeof(s16)*1024);
+			chart1_axis_max =  log10((double)Impandence_Value_Max)*1000;
+			chart1_axis_min = log10((double)Impandence_Value)*1000;
+			chart2_axis_max =  log10((double)Impandence_Value_Max)*1000;
+			chart2_axis_min = log10((double)Impandence_Value)*1000;
+         	GraphSetViewport(0,23,0,33,0,5);   
+			GraphSetViewport(0,33,0,33,chart1_axis_max-(185*(chart1_axis_max-chart1_axis_min)/180),18000/(chart1_axis_max-chart1_axis_min));		 //5-185
+		 }
+		if(display_flag==1){
+			
+			chart1_axis_max =(u16)(Impandence_Value_Max>>16);
+			chart1_axis_min = (u16)(Impandence_Value>>16);
+			chart2_axis_max =  log10((double)Impandence_Value_Max)*1000;
+			chart2_axis_min = log10((double)Impandence_Value)*1000;
+			for(i_flag=0; i_flag<1000; i_flag++)
+			{
+				chart1[i_flag] = (u16)(Impandence_Buffer[i_flag]>>16)*0.45;
+			}
+			memcpy(chart2s,Angle_Buffer,sizeof(s16)*1024);
+        	GraphSetViewport(0,23,0,33,0,5);    
+			GraphSetViewport(0,33,0,33,0,1);		 //5-185
+		 }
+		if(display_flag==2){
+			memcpy(chart1,Current_V_Buffer,sizeof(u16)*1024);
+			memcpy(chart2s,Current_A_Buffer,sizeof(s16)*1024);
+			chart1_axis_max =  log10((double)Impandence_Value_Max)*1000;
+			chart1_axis_min = log10((double)Impandence_Value)*1000;
+			chart2_axis_max =  log10((double)Impandence_Value_Max)*1000;
+			chart2_axis_min = log10((double)Impandence_Value)*1000;
+        	GraphSetViewport(0,23,0,33,0,1);    
+			GraphSetViewport(0,33,0,33,0,1);		 
+		 }
+		if(display_flag==3){
+        	GraphSetViewport(0,23,0,33,0,1);    
+			GraphSetViewport(0,33,0,33,0,1);		
+		 }
 		sprintf((char*)Buff,"%-7.0f",(double)chart1_axis_min);
 		SetTextValue(0,31,Buff);  
 		sprintf((char*)Buff,"%-7.0f",(double)chart1_axis_max);
@@ -1102,23 +1143,6 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		SetTextValue(0,34,Buff);  
 		sprintf((char*)Buff,"%-7.0f",(double)chart2_axis_max);
 		SetTextValue(0,35,Buff);
-
-		if(display_flag==0){
-         	GraphSetViewport(0,23,0,33,0,5);   
-			GraphSetViewport(0,33,0,33,chart1_axis_max-(185*(chart1_axis_max-chart1_axis_min)/180),18000/(chart1_axis_max-chart1_axis_min));		 //5-185
-		 }
-		if(display_flag==1){
-        	GraphSetViewport(0,23,0,33,0,5);    
-			GraphSetViewport(0,33,0,33,0,1);		 //5-185
-		 }
-		if(display_flag==2){
-        	GraphSetViewport(0,23,0,33,0,1);    
-			GraphSetViewport(0,33,0,33,0,1);		 
-		 }
-		if(display_flag==4){
-        	GraphSetViewport(0,23,0,33,0,1);    
-			GraphSetViewport(0,33,0,33,0,1);		
-		 }
 		  TIM_Cmd(TIM2, ENABLE);
 
 	  		while (1)
@@ -1149,7 +1173,6 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 ***********************************************************************/
 void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage)
 {
-//	u16 t;
 	AnimationPlayFrame(0,25,1); 
 
 	if (Sweep(Start_Fre, End_Fre, Voltage) == 1)
@@ -1157,21 +1180,23 @@ void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage)
 		Impandence_Buffer_Flag = 0;
 
 		GPIO_ResetBits(GPIOE,GPIO_Pin_15);
-    GPIO_SetBits(GPIOE,GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_10|GPIO_Pin_11|GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14);
-			
+    GPIO_SetBits(GPIOE,GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_10|GPIO_Pin_11|GPIO_Pin_12|GPIO_Pin_13|GPIO_Pin_14);		
 	}
 	else
 	{
-		chart(Display_Mode_Flag);//
-		if(CampareandAlarm((double)Fre_Min,(double)Fre_Max,(double)XZ_Impandence/1000 * 1.14651,(double)C0,
-			CT*10000000000,(double)C1,(double)L1 * 1.45396,(double)YZ_Impandence/1000000*0.59896,(double)Qm * 1.029)==1)
-			{   SetBuzzer(60);
-			    AnimationPlayFrame(0,26,1); 
-				
-			}else
-			{   
-			    AnimationPlayFrame(0,26,2); 
-			}
+		chart(Display_Mode_Flag);
+		if(CampareandAlarm((double)Fre_Min,(double)Fre_Max,(double)XZ_Impandence/1000 * 1.14651,
+			(double)C0,CT*10000000000,(double)C1,(double)L1 * 1.45396,(double)YZ_Impandence/1000000*0.59896,
+			(double)Qm * 1.029)==1)
+			
+		{   SetBuzzer(60);
+			AnimationPlayFrame(0,26,1); 
+			SetTextValue( 0, 29,"NG");
+		}else
+		{   
+			AnimationPlayFrame(0,26,2); 
+			SetTextValue( 0, 29,"OK");
+		}
 	}
 	AnimationPlayFrame(0,25,0); 
 }
@@ -1305,7 +1330,8 @@ void Send_Data_USB()
 	
 	SetProgressValue(0,24,100);
 	sprintf((char*)buf,"%d",100);
-	SetTextValue(0,25,buf);
+	//SetTextValue(0,25,buf);
+	
 	//Delayus(4000000);
 	
 	delay_ms(500);
