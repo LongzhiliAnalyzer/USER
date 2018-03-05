@@ -1246,11 +1246,28 @@ void Send_Data_USB()
 	delay_init();
 	CH375_Init();
 	CH375LibInit( );
-
+	
+	TIM_Cmd(TIM3, ENABLE); 
 	while ( CH375DiskStatus < DISK_CONNECT ) {            /* 查询CH375中断并更新中断状态,等待U盘插入 */
 		if ( CH375DiskConnect( ) == ERR_SUCCESS ) break;  /* 有设备连接则返回成功,CH375DiskConnect同时会更新全局变量CH375DiskStatus */
+		if ( Time_100Ms_2 > 100 )
+		{
+			Time_100Ms_2 = 0;
+			//DiskConnectFlag = 1;
+			//SetScreen();
+			TIM_Cmd(TIM3, DISABLE);
+			return;
+			//break;
+		}
 		delay_ms( 100 );
+		
 	}
+	
+//	if(DiskConnectFlag == 1)
+//	{
+//		
+//	}
+	
 	delay_ms(200);
 	
 	printf("disk init\n");
