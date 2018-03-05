@@ -309,7 +309,6 @@ void save_second()
 	char buf3[15]="0";
 	char buf4[48]="0";
 	int i = 0;
-	char buf[50] = {0};
 	
 	sprintf((char*)buf1,"%-8d", Fre_Buffer[t]);
 	sprintf((char*)buf2,"%-10d", Impandence_Buffer[t]);
@@ -1277,7 +1276,7 @@ void Send_Data_USB()
 		{
 			Time_100Ms_2 = 0;
 			//DiskConnectFlag = 1;
-			//SetScreen();
+			SetScreen(15);
 			TIM_Cmd(TIM3, DISABLE);
 			return;
 			//break;
