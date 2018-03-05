@@ -94,8 +94,7 @@ extern u32 USART_RX_STA;         		//接收状态标记
 void uart_init(u32 bound);
 void uart2_init(u32 bound);
 void USART2_printf (char *fmt,...);
-// 小板新增
-void itoa (int n,char s[]);
+void chart(uint16 display_flag);
 #endif
 
 

@@ -30,7 +30,7 @@
 uint8 cmd_buffer[CMD_MAX_BUFFER];
 unsigned char Buff[] = {0};	
 
-//uint16 Ok1_Control_Flag = 0;     //DGUT
+//uint16 SaveData_Ok_Flag = 0;     //DGUT
 
 /*----------------------------------------------------------------------------------------
 **                          1. 基于8051平台串口驱动
@@ -254,9 +254,9 @@ void ClearScreen_Button(void)
 **********************************************************************************/
 void SaveData_Button(void)
 {
-	if(Ok1_Control_Flag == 1)
+	if(SaveData_Ok_Flag == 1)
  	{	    		
-		Ok1_Control_Flag=0;
+		SaveData_Ok_Flag=0;
 		SaveData_Flag = 0;
         Clear_Flag = 0;
 		Send_Data_USB();

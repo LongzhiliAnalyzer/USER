@@ -43,7 +43,7 @@
 #define   YELLOW	0xFFE0		      /* »ÆÉ«£º    255, 255, 0 */
 #define   WHITE		0xFFFF          /* °×É«£º    255, 255, 255 */
 enum {UNVISABLE,VISABLE};
-extern uint16 Ok1_Control_Flag;           //DGUT
+extern uint16 SaveData_Ok_Flag;           //DGUT
 
 
 
@@ -94,5 +94,6 @@ void OnRecmenu(PCTRL_MSG msg,qsize size);
 
 extern void Delayus(__IO uint32_t kCount);
 extern void OnRecvChangeScreen(uint16_t screen_id);
+extern void chart(uint16 display_flag);
 
 #endif

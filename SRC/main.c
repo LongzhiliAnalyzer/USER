@@ -452,7 +452,6 @@ void CPU_Init(void)
 int main ()
 {
 	qsize  SIZE = 0;
-	u16 j = 77;
 	CPU_Init();
 	AD9833_Init();
   	queue_reset();					              /*清空串口接收缓冲区*/
@@ -461,13 +460,8 @@ int main ()
   	iniuserctr();					                /*初始化用户控件*/
 	Delayus(3000000);
 	
-	/* 小板新增 */
-	
-	//CH375_Configuration();
-
-	SetTextValue(0,8,(char *)j);
-  while (1)
-  {
+	while (1)
+	{
 		if(Ok_Control_Flag == 0)
 		{
 			Ok_Control_Flag = 1;
@@ -475,7 +469,7 @@ int main ()
 		}
 
 		SIZE = queue_find_cmd(cmd_buffer,CMD_MAX_BUFFER);         /*从缓冲区中获取一条指令*/
-    if(SIZE<=0)                                               /*没有接收到指令*/
+		if(SIZE<=0)                                               /*没有接收到指令*/
 			continue;
 
 		Message_Deal(SIZE);					                              /*接收信号处理函数*/
@@ -485,5 +479,5 @@ int main ()
 		ClearScreen_Button();                                     /*判断清屏按钮是否按下*/
 		SaveData_Button();                                        /*判断保存数据按钮是否按下*/
 		SavePic_Button();                                         /*判断保存图片按钮是否按下*/
-  }
+	}
 }

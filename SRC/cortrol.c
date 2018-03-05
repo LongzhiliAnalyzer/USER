@@ -172,8 +172,6 @@ void	mStopIfError( UINT8 iError )
 void save_first()           
 {
 	int i = 0;
-//	UINT8 file[20] = "/001.TXT";
-	char ENTER[] = "\r\n";
 	char write_test0[50] = "0";	 
 	char write_test1[50] = "0";
 	char write_test2[50] = "0";
@@ -331,8 +329,6 @@ void save_second()
 	if(t % 20 == 0)
 	{
 		SetProgressValue(0,24,t*100/1000);
-		sprintf((char*)buf,"%d",t*100/1000);
-		//SetTextValue(0,25,buf);
 	}
 }
 /******************************************************************
@@ -1267,20 +1263,34 @@ void USART2_IRQHandler()
 void Send_Data_USB()
 {  	
 	unsigned char buf[] = {0};
-	//UINT8 dir[20] = "/SAVE";
-	UINT8 file[20] = "/001.TXT";
 	u16 i=0;	
-	u16 j = 101;
 	ShowControl(0,28,1); 	
 	
 	delay_init();
 	CH375_Init();
 	CH375LibInit( );
-
+	
+	TIM_Cmd(TIM3, ENABLE); 
 	while ( CH375DiskStatus < DISK_CONNECT ) {            /* 查询CH375中断并更新中断状态,等待U盘插入 */
 		if ( CH375DiskConnect( ) == ERR_SUCCESS ) break;  /* 有设备连接则返回成功,CH375DiskConnect同时会更新全局变量CH375DiskStatus */
+		if ( Time_100Ms_2 > 100 )
+		{
+			Time_100Ms_2 = 0;
+			//DiskConnectFlag = 1;
+			//SetScreen();
+			TIM_Cmd(TIM3, DISABLE);
+			return;
+			//break;
+		}
 		delay_ms( 100 );
+		
 	}
+	
+//	if(DiskConnectFlag == 1)
+//	{
+//		
+//	}
+	
 	delay_ms(200);
 	
 	printf("disk init\n");
@@ -1301,7 +1311,29 @@ void Send_Data_USB()
 	mCmdParam.Close.mUpdateLen = 1;                       /* 不要自动计算文件长度,如果自动计算,那么该长度总是CH375vSectorSize的倍数 */
 	i = CH375FileClose( );
 	mStopIfError( i );	
+	
+	t = 0;
+	
+	SetProgressValue(0,24,100);
+	sprintf((char*)buf,"%d",100);
+	SetTextValue(0,25,buf);
+	
+	delay_ms(500);
+	  
+	SetScreen(3);	     //显时保存成功的界面
+	Beep_On();         //开蜂鸣器
+	Delayus(400000);
+	Beep_Off();        //关蜂鸣器 
+	t=0;      	
+	Delayus(4000000);
+	Delayus(4000000);
+	Delayus(4000000);
+	SetScreen(0);	     //显示主界面   
 
+
+/**********************************
+ch375读写测试程序
+**********************************/
 //	strcpy((char *)mCmdParam.Create.mPathName, "\\TITLE.TXT");   	//(文件名必须大写,且不能超过8个字符，后缀不能超过3个字符)
 
 //	
@@ -1324,29 +1356,6 @@ void Send_Data_USB()
 //	mCmdParam.Close.mUpdateLen = 1;                       /* 不要自动计算文件长度,如果自动计算,那么该长度总是CH375vSectorSize的倍数 */
 //	i = CH375FileClose( );
 //	mStopIfError( i );		
-	
-
-	t = 0;
-	
-	SetProgressValue(0,24,100);
-	sprintf((char*)buf,"%d",100);
-	//SetTextValue(0,25,buf);
-	
-	//Delayus(4000000);
-	
-	delay_ms(500);
-//	delay_ms(100);
-//	delay_ms(100);
-	  
-	SetScreen(3);	     //显时保存成功的界面
-	Beep_On();         //开蜂鸣器
-	Delayus(400000);
-	Beep_Off();        //关蜂鸣器 
-	t=0;      	
-	Delayus(4000000);
-	Delayus(4000000);
-	Delayus(4000000);
-	SetScreen(0);	     //显示主界面   
 }
 
 /**********************************************************************
