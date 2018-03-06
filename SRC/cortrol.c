@@ -823,8 +823,8 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		Delayus(10000);
 	    ADC1_ValueFilter(20);					                                     //采样得到反馈的电压、电流值
 		Phase_ValueFilter(20);
-		Current_V_Buffer[(Current_Fre-Start_Fre)/FreGain]=Current_V*0.01;
-		Current_A_Buffer[(Current_Fre-Start_Fre)/FreGain]=Current_A*0.2;
+		Current_V_Buffer[(Current_Fre-Start_Fre)/FreGain]=Current_V;
+		Current_A_Buffer[(Current_Fre-Start_Fre)/FreGain]=Current_A;
 
 		Current_ARes = (float)Current_A/SampleRes;
 
@@ -1179,10 +1179,10 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 			chart2_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
 			chart2_yaxis_min = log10((double)Impandence_Value)*1000;
 
-			chart1_xaxis_max =  start_fre;
-			chart1_xaxis_min = end_fre;
-			chart2_xaxis_max = start_fre;
-			chart2_xaxis_min = end_fre;
+			chart1_xaxis_max =  end_fre;
+			chart1_xaxis_min = start_fre;
+			chart2_xaxis_max = end_fre;
+			chart2_xaxis_min = start_fre;
          	GraphSetViewport(0,23,0,33,0,5);   
 			GraphSetViewport(0,33,0,33,chart1_yaxis_max-(185*(chart1_yaxis_max-chart1_yaxis_min)/180),18000/(chart1_yaxis_max-chart1_yaxis_min));		 //5-185
 		 }
@@ -1201,6 +1201,12 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 			GraphSetViewport(0,33,0,33,0,1);		 //5-185
 		 }
 		if(display_flag==2){
+
+			for(i_flag=0;i_flag<1024;i_flag++)
+				{
+				Current_V_Buffer[i_flag]*=0.01;
+				Current_A_Buffer[i_flag]*=0.2;
+			}
 			memcpy(chart1,Current_V_Buffer,sizeof(u16)*1024);
 			memcpy(chart2s,Current_A_Buffer,sizeof(s16)*1024);
 			chart1_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
