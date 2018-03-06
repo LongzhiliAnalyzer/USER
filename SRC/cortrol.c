@@ -231,67 +231,119 @@ void save_first()
 	
 	strcpy((char *)mCmdParam.Create.mPathName, file);
 	i = CH375FileCreate( );                               /* 新建文件并打开,如果文件已经存在则先删除后再新建 */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String);
 	mCmdParam.ByteWrite.mByteCount = strlen(Head_String);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String0);
 	mCmdParam.ByteWrite.mByteCount = strlen(Head_String0);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, write_test0);
 	mCmdParam.ByteWrite.mByteCount = strlen(write_test0);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String1);
 	mCmdParam.ByteWrite.mByteCount = strlen(Head_String1);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, write_test1);
 	mCmdParam.ByteWrite.mByteCount = strlen(write_test1);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String2);
 	mCmdParam.ByteWrite.mByteCount = strlen(Head_String2);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, write_test2);
 	mCmdParam.ByteWrite.mByteCount = strlen(write_test2);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String3);
 	mCmdParam.ByteWrite.mByteCount = strlen(Head_String3);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, write_test3);
 	mCmdParam.ByteWrite.mByteCount = strlen(write_test3);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String4);
 	mCmdParam.ByteWrite.mByteCount = strlen(Head_String4);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, write_test4);
 	mCmdParam.ByteWrite.mByteCount = strlen(write_test4);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, Head_String5);
 	mCmdParam.ByteWrite.mByteCount = strlen(Head_String5);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 } 
 
@@ -322,7 +374,11 @@ void save_second()
 	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, buf4);
 	mCmdParam.ByteWrite.mByteCount = strlen(buf4);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
-	mStopIfError( i );
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	t++;
 	if(t % 20 == 0)
@@ -1242,8 +1298,6 @@ void Send_Space(u8 t)
 ***********************************************************************/
 void USART2_IRQHandler()
 {
-
-
 	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)  
 	{
 
@@ -1261,7 +1315,6 @@ void USART2_IRQHandler()
 
 void Send_Data_USB()
 {  	
-	unsigned char buf[] = {0};
 	u16 i=0;	
 	ShowControl(0,28,1); 	
 	
@@ -1272,23 +1325,16 @@ void Send_Data_USB()
 	TIM_Cmd(TIM3, ENABLE); 
 	while ( CH375DiskStatus < DISK_CONNECT ) {            /* 查询CH375中断并更新中断状态,等待U盘插入 */
 		if ( CH375DiskConnect( ) == ERR_SUCCESS ) break;  /* 有设备连接则返回成功,CH375DiskConnect同时会更新全局变量CH375DiskStatus */
-		if ( Time_100Ms_2 > 100 )
+		if ( Time_100Ms_2 > 50 )
 		{
 			Time_100Ms_2 = 0;
-			//DiskConnectFlag = 1;
 			SetScreen(15);
 			TIM_Cmd(TIM3, DISABLE);
 			return;
-			//break;
 		}
 		delay_ms( 100 );
-		
 	}
 	
-//	if(DiskConnectFlag == 1)
-//	{
-//		
-//	}
 	
 	delay_ms(200);
 	
@@ -1309,13 +1355,15 @@ void Send_Data_USB()
 	
 	mCmdParam.Close.mUpdateLen = 1;                       /* 不要自动计算文件长度,如果自动计算,那么该长度总是CH375vSectorSize的倍数 */
 	i = CH375FileClose( );
-	mStopIfError( i );	
+	if ( i != ERR_SUCCESS )
+	{
+		SetScreen(2);			//显示保存失败
+		return;
+	}	
 	
 	t = 0;
 	
 	SetProgressValue(0,24,100);
-	sprintf((char*)buf,"%d",100);
-	SetTextValue(0,25,buf);
 	
 	delay_ms(500);
 	  
