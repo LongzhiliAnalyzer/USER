@@ -374,8 +374,8 @@ void save_second()
 	sprintf((char*)buf1,"%-8d", Fre_Buffer[t]);
 	sprintf((char*)buf2,"%-10d", Impandence_Buffer[t]);
 	sprintf((char*)buf3,"%-8.2f", Angle[t]);
-	sprintf((char*)buf4,"%-8d", Current_A_Buffer[t]);
-	sprintf((char*)buf5,"%-8d", Current_V_Buffer[t]);
+	sprintf((char*)buf4,"%-8d", Current_V_Buffer[t]);
+	sprintf((char*)buf5,"%-8d", Current_A_Buffer[t]);
 	
 	strcpy((char *)buf,(char*)buf1);
 	strcat((char *)buf,(char*)buf2);
