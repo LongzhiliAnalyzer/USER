@@ -191,7 +191,7 @@ void save_first()
 	char Head_String2[] = "Qm        keff      F2-F1\r\n";	
 	char Head_String3[] = "CT        C1        C0\r\n";	
 	char Head_String4[] = "L1\r\n";
-	char Head_String5[] = "\r\nFre     Imp       Ang\r\n";
+	char Head_String5[] = "\r\nFre     Imp       Ang      U      I\r\n";
 	
 	char buf[50] = {0};
 	char file[10] = "\\";
@@ -380,7 +380,17 @@ void save_second()
 	strcpy((char *)buf,(char*)buf1);
 	strcat((char *)buf,(char*)buf2);
 	strcat((char *)buf,(char*)buf3);
-	strcat((char *)buf,(char*)buf4);
+	
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, buf);
+	mCmdParam.ByteWrite.mByteCount = strlen(buf);
+	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
+	if ( i != ERR_SUCCESS )
+	{
+		SaveErrorFlag = 1;
+		return;
+	}
+	
+	strcpy((char *)buf,(char*)buf4);
 	strcat((char *)buf,(char*)buf5);
 	strcat((char *)buf, "\r\n");
 	
