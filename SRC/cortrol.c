@@ -366,20 +366,26 @@ void save_second()
 	char buf1[15]="0";
 	char buf2[15]="0";
 	char buf3[15]="0";
-	char buf4[48]="0";
+	char buf4[15]="0";
+	char buf5[15]="0";
+	char buf[48]="0";
 	int i = 0;
 	
 	sprintf((char*)buf1,"%-8d", Fre_Buffer[t]);
 	sprintf((char*)buf2,"%-10d", Impandence_Buffer[t]);
 	sprintf((char*)buf3,"%-8.2f", Angle[t]);
+	sprintf((char*)buf4,"%-8d", Current_A_Buffer[t]);
+	sprintf((char*)buf5,"%-8d", Current_V_Buffer[t]);
 	
-	strcpy((char *)buf4,(char*)buf1);
-	strcat((char *)buf4,(char*)buf2);
-	strcat((char *)buf4,(char*)buf3);
-	strcat((char *)buf4, "\r\n");
+	strcpy((char *)buf,(char*)buf1);
+	strcat((char *)buf,(char*)buf2);
+	strcat((char *)buf,(char*)buf3);
+	strcat((char *)buf,(char*)buf4);
+	strcat((char *)buf,(char*)buf5);
+	strcat((char *)buf, "\r\n");
 	
-	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, buf4);
-	mCmdParam.ByteWrite.mByteCount = strlen(buf4);
+	strcpy((char *)mCmdParam.ByteWrite.mByteBuffer, buf);
+	mCmdParam.ByteWrite.mByteCount = strlen(buf);
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
