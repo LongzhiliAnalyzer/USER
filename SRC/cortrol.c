@@ -1325,7 +1325,7 @@ void Send_Data_USB()
 	TIM_Cmd(TIM3, ENABLE); 
 	while ( CH375DiskStatus < DISK_CONNECT ) {            /* 查询CH375中断并更新中断状态,等待U盘插入 */
 		if ( CH375DiskConnect( ) == ERR_SUCCESS ) break;  /* 有设备连接则返回成功,CH375DiskConnect同时会更新全局变量CH375DiskStatus */
-		if ( Time_100Ms_2 > 50 )
+		if ( Time_100Ms_2 > 10 )
 		{
 			Time_100Ms_2 = 0;
 			SetScreen(15);
@@ -1351,6 +1351,8 @@ void Send_Data_USB()
 	while(t < 1000)
 	{
 		save_second();
+		if ( i != ERR_SUCCESS )
+			return;
 	}
 	
 	mCmdParam.Close.mUpdateLen = 1;                       /* 不要自动计算文件长度,如果自动计算,那么该长度总是CH375vSectorSize的倍数 */
