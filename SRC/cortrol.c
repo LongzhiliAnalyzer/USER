@@ -49,6 +49,7 @@ u8 times=0;
 //u32 file_name=0; already defined in ctrlfile.c
 UINT8 File_Name[20]="0";     //{"/youchao/",file_name,".txt"};
 u32 t=0;
+char SaveErrorFlag = 0;
 //----小板新增部分 end----
 
 u8 USART2_RX=0;
@@ -233,7 +234,7 @@ void save_first()
 	i = CH375FileCreate( );                               /* 新建文件并打开,如果文件已经存在则先删除后再新建 */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -242,7 +243,7 @@ void save_first()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -251,7 +252,7 @@ void save_first()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -260,7 +261,7 @@ void save_first()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -269,7 +270,7 @@ void save_first()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -278,7 +279,7 @@ void save_first()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -287,7 +288,7 @@ void save_first()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -296,7 +297,7 @@ void save_first()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -305,7 +306,7 @@ void save_first()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -314,7 +315,7 @@ void save_first()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -323,7 +324,7 @@ void save_first()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -332,7 +333,7 @@ void save_first()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -341,7 +342,7 @@ void save_first()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -376,7 +377,7 @@ void save_second()
 	i = CH375ByteWrite( );                                /* 以字节为单位向文件写入数据,单次读写的长度不能超过MAX_BYTE_IO */
 	if ( i != ERR_SUCCESS )
 	{
-		SetScreen(2);			//显示保存失败
+		SaveErrorFlag = 1;
 		return;
 	}
 	
@@ -1325,7 +1326,7 @@ void Send_Data_USB()
 	TIM_Cmd(TIM3, ENABLE); 
 	while ( CH375DiskStatus < DISK_CONNECT ) {            /* 查询CH375中断并更新中断状态,等待U盘插入 */
 		if ( CH375DiskConnect( ) == ERR_SUCCESS ) break;  /* 有设备连接则返回成功,CH375DiskConnect同时会更新全局变量CH375DiskStatus */
-		if ( Time_100Ms_2 > 10 )
+		if ( Time_100Ms_2 > 5 )
 		{
 			Time_100Ms_2 = 0;
 			SetScreen(15);
@@ -1346,13 +1347,23 @@ void Send_Data_USB()
 	}
 	
 	save_first();
+	if (SaveErrorFlag == 1)
+	{
+		SaveErrorFlag = 0;
+		SetScreen(2);			//显示保存失败
+		return;
+	}
 	
 	t = 0;
 	while(t < 1000)
 	{
 		save_second();
-		if ( i != ERR_SUCCESS )
+		if (SaveErrorFlag == 1)
+		{
+			SaveErrorFlag = 0;
+			SetScreen(2);			//显示保存失败
 			return;
+		}
 	}
 	
 	mCmdParam.Close.mUpdateLen = 1;                       /* 不要自动计算文件长度,如果自动计算,那么该长度总是CH375vSectorSize的倍数 */
