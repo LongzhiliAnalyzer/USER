@@ -1162,10 +1162,10 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 			chart2_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
 			chart2_yaxis_min = log10((double)Impandence_Value)*1000;
 
-			chart1_xaxis_max =  start_fre;
-			chart1_xaxis_min = end_fre;
-			chart2_xaxis_max = start_fre;
-			chart2_xaxis_min = end_fre;
+			chart1_xaxis_max =  end_fre;
+			chart1_xaxis_min = start_fre;
+			chart2_xaxis_max = end_fre;
+			chart2_xaxis_min = start_fre;
          	GraphSetViewport(0,23,0,33,0,5);   
 			GraphSetViewport(0,33,0,33,chart1_yaxis_max-(185*(chart1_yaxis_max-chart1_yaxis_min)/180),18000/(chart1_yaxis_max-chart1_yaxis_min));		 //5-185
 		 }
