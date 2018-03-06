@@ -80,10 +80,16 @@ u16 Current_A_Buffer[1024] = {0};
 u16 chart1[1024]={0};
 u16 chart2u[1024]={0};
 s16 chart2s[1024]={0};
-u16 chart1_axis_min=0;
-u16 chart1_axis_max=0;
-u16 chart2_axis_max=0;
-u16 chart2_axis_min=0;
+
+u16 chart1_xaxis_min=0;
+u16 chart1_xaxis_max=0;
+u16 chart1_yaxis_min=0;
+u16 chart1_yaxis_max=0;
+
+u16 chart2_xaxis_max=0;
+u16 chart2_xaxis_min=0;
+u16 chart2_yaxis_max=0;
+u16 chart2_yaxis_min=0;
 
 u16 Impandence_Log10[1024] = {0};
 u16 V_A_MAX=0;
@@ -1152,19 +1158,24 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		if(display_flag==0){
 			memcpy(chart1,Impandence_Buffer2,sizeof(u16)*1024);
 			memcpy(chart2s,Angle_Buffer,sizeof(s16)*1024);
-			chart1_axis_max =  log10((double)Impandence_Value_Max)*1000;
-			chart1_axis_min = log10((double)Impandence_Value)*1000;
-			chart2_axis_max =  log10((double)Impandence_Value_Max)*1000;
-			chart2_axis_min = log10((double)Impandence_Value)*1000;
+			chart1_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
+			chart1_yaxis_min = log10((double)Impandence_Value)*1000;
+			chart2_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
+			chart2_yaxis_min = log10((double)Impandence_Value)*1000;
+
+			chart1_xaxis_max =  start_fre;
+			chart1_xaxis_min = end_fre;
+			chart2_xaxis_max = start_fre;
+			chart2_xaxis_min = end_fre;
          	GraphSetViewport(0,23,0,33,0,5);   
-			GraphSetViewport(0,33,0,33,chart1_axis_max-(185*(chart1_axis_max-chart1_axis_min)/180),18000/(chart1_axis_max-chart1_axis_min));		 //5-185
+			GraphSetViewport(0,33,0,33,chart1_yaxis_max-(185*(chart1_yaxis_max-chart1_yaxis_min)/180),18000/(chart1_yaxis_max-chart1_yaxis_min));		 //5-185
 		 }
 		if(display_flag==1){
 			
-			chart1_axis_max =(u16)(Impandence_Value_Max>>16);
-			chart1_axis_min = (u16)(Impandence_Value>>16);
-			chart2_axis_max =  log10((double)Impandence_Value_Max)*1000;
-			chart2_axis_min = log10((double)Impandence_Value)*1000;
+			chart1_yaxis_max =(u16)(Impandence_Value_Max>>16);
+			chart1_yaxis_min = (u16)(Impandence_Value>>16);
+			chart2_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
+			chart2_yaxis_min = log10((double)Impandence_Value)*1000;
 			for(i_flag=0; i_flag<1000; i_flag++)
 			{
 				chart1[i_flag] = (u16)(Impandence_Buffer[i_flag]>>16)*0.45;
@@ -1176,10 +1187,10 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 		if(display_flag==2){
 			memcpy(chart1,Current_V_Buffer,sizeof(u16)*1024);
 			memcpy(chart2s,Current_A_Buffer,sizeof(s16)*1024);
-			chart1_axis_max =  log10((double)Impandence_Value_Max)*1000;
-			chart1_axis_min = log10((double)Impandence_Value)*1000;
-			chart2_axis_max =  log10((double)Impandence_Value_Max)*1000;
-			chart2_axis_min = log10((double)Impandence_Value)*1000;
+			chart1_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
+			chart1_yaxis_min = log10((double)Impandence_Value)*1000;
+			chart2_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
+			chart2_yaxis_min = log10((double)Impandence_Value)*1000;
         	GraphSetViewport(0,23,0,33,0,1);    
 			GraphSetViewport(0,33,0,33,0,1);		 
 		 }
@@ -1187,14 +1198,23 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
         	GraphSetViewport(0,23,0,33,0,1);    
 			GraphSetViewport(0,33,0,33,0,1);		
 		 }
-		sprintf((char*)Buff,"%-7.0f",(double)chart1_axis_min);
+		sprintf((char*)Buff,"%-7.0f",(double)chart1_yaxis_min);
 		SetTextValue(0,31,Buff);  
-		sprintf((char*)Buff,"%-7.0f",(double)chart1_axis_max);
+		sprintf((char*)Buff,"%-7.0f",(double)chart1_yaxis_max);
 		SetTextValue(0,32,Buff);  
-		sprintf((char*)Buff,"%-7.0f",(double)chart2_axis_min);
+		sprintf((char*)Buff,"%-7.0f",(double)chart2_yaxis_min);
 		SetTextValue(0,34,Buff);  
-		sprintf((char*)Buff,"%-7.0f",(double)chart2_axis_max);
+		sprintf((char*)Buff,"%-7.0f",(double)chart2_yaxis_max);
 		SetTextValue(0,35,Buff);
+
+		sprintf((char*)Buff,"%-7.0f",(double)chart1_xaxis_min);
+		SetTextValue(0,37,Buff);  
+		sprintf((char*)Buff,"%-7.0f",(double)chart1_xaxis_max);
+		SetTextValue(0,36,Buff);  
+		sprintf((char*)Buff,"%-7.0f",(double)chart2_xaxis_min);
+		SetTextValue(0,38,Buff);  
+		sprintf((char*)Buff,"%-7.0f",(double)chart2_xaxis_max);
+		SetTextValue(0,30,Buff);
 		  TIM_Cmd(TIM2, ENABLE);
 
 	  		while (1)
