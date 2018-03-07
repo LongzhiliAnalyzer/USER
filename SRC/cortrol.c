@@ -1278,7 +1278,11 @@ void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage)
 	}
 	else
 	{
-		chart(Display_Mode_Flag);
+		ShowControl(0,3,1);     //启动按钮
+		ShowControl(0,27,1);    //清屏按钮
+		ShowControl(0,4,0);     //停止按钮
+		ShowControl(0,28,1);    //保存数据按钮
+		AnimationPlayFrame(0,25,0); 
 		if(CampareandAlarm((double)Fre_Min,(double)Fre_Max,(double)XZ_Impandence/1000 * 1.14651,
 			(double)C0,CT*10000000000,(double)C1,(double)L1 * 1.45396,(double)YZ_Impandence/1000000*0.59896,
 			(double)Qm * 1.029)==1)
@@ -1291,6 +1295,7 @@ void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage)
 			AnimationPlayFrame(0,26,2); 
 			SetTextValue( 0, 29,"OK");
 		}
+		chart(Display_Mode_Flag);
 	}
 	AnimationPlayFrame(0,25,0); 
 }

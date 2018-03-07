@@ -197,10 +197,10 @@ void OK_Button(void)
 			Dac_Control_Flag = 0;
 			Stop_Control_Flag = 0;  
 	
-			ShowControl(0,3,1);     //启动按钮
-			ShowControl(0,27,1);    //清屏按钮
-			ShowControl(0,4,0);     //停止按钮
-			ShowControl(0,28,0);    //保存数据按钮
+//			ShowControl(0,3,1);     //启动按钮
+//			ShowControl(0,27,1);    //清屏按钮
+//			ShowControl(0,4,0);     //停止按钮
+//			ShowControl(0,28,1);    //保存数据按钮
 			
 			Beep_On();         //开蜂鸣器
 			Delayus(400000);
@@ -208,11 +208,11 @@ void OK_Button(void)
 			Beep_Off();        //关蜂鸣器
 			GPIO_SetBits(GPIOA,GPIO_Pin_7);
 		}
-		ShowControl(0,28,1);    //保存数据按钮
+		//ShowControl(0,28,1);    //保存数据按钮
 	}
 	ShowControl(0,3,1);       //启动按钮
 	ShowControl(0,27,1);      //清屏按钮
-	AnimationPlayFrame(0,25,0); 
+	
 }	
 
 /*********************************************************************************
