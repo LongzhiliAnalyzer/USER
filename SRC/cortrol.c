@@ -81,15 +81,15 @@ u16 chart1[1024]={0};
 u16 chart2u[1024]={0};
 s16 chart2s[1024]={0};
 
-u16 chart1_xaxis_min=0;
-u16 chart1_xaxis_max=0;
-u16 chart1_yaxis_min=0;
-u16 chart1_yaxis_max=0;
+u32 chart1_xaxis_min=0;
+u32 chart1_xaxis_max=0;
+u32 chart1_yaxis_min=0;
+u32 chart1_yaxis_max=0;
 
-u16 chart2_xaxis_max=0;
-u16 chart2_xaxis_min=0;
-u16 chart2_yaxis_max=0;
-u16 chart2_yaxis_min=0;
+u32 chart2_xaxis_max=0;
+u32 chart2_xaxis_min=0;
+u32 chart2_yaxis_max=0;
+u32 chart2_yaxis_min=0;
 
 u16 Impandence_Log10[1024] = {0};
 u16 V_A_MAX=0;
@@ -1176,8 +1176,8 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 			memcpy(chart2s,Angle_Buffer,sizeof(s16)*1024);
 			chart1_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
 			chart1_yaxis_min = log10((double)Impandence_Value)*1000;
-			chart2_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
-			chart2_yaxis_min = log10((double)Impandence_Value)*1000;
+			//chart2_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
+			//chart2_yaxis_min = log10((double)Impandence_Value)*1000;
 
 			chart1_xaxis_max =  end_fre;
 			chart1_xaxis_min = start_fre;
@@ -1190,8 +1190,12 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 			
 			chart1_yaxis_max =(u16)(Impandence_Value_Max>>16);
 			chart1_yaxis_min = (u16)(Impandence_Value>>16);
-			chart2_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
-			chart2_yaxis_min = log10((double)Impandence_Value)*1000;
+			//chart2_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
+			//chart2_yaxis_min = log10((double)Impandence_Value)*1000;
+			chart1_xaxis_max =  end_fre;
+			chart1_xaxis_min = start_fre;
+			chart2_xaxis_max = end_fre;
+			chart2_xaxis_min = start_fre;
 			for(i_flag=0; i_flag<1000; i_flag++)
 			{
 				chart1[i_flag] = (u16)(Impandence_Buffer[i_flag]>>16)*0.45;
@@ -1209,10 +1213,15 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 			}
 			memcpy(chart1,Current_V_Buffer,sizeof(u16)*1024);
 			memcpy(chart2s,Current_A_Buffer,sizeof(s16)*1024);
-			chart1_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
-			chart1_yaxis_min = log10((double)Impandence_Value)*1000;
-			chart2_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
-			chart2_yaxis_min = log10((double)Impandence_Value)*1000;
+			chart1_yaxis_max =0;
+			chart1_yaxis_min =0;
+		//	chart2_yaxis_max =  log10((double)Impandence_Value_Max)*1000;
+		//	chart2_yaxis_min = log10((double)Impandence_Value)*1000;
+
+			chart1_xaxis_max =  end_fre;
+			chart1_xaxis_min = start_fre;
+			chart2_xaxis_max = end_fre;
+			chart2_xaxis_min = start_fre;
         	GraphSetViewport(0,23,0,33,0,1);    
 			GraphSetViewport(0,33,0,33,0,1);		 
 		 }
@@ -1265,7 +1274,7 @@ u16 Sweep(u32 Start_Fre,u32 End_Fre,u16 DAC_Value)
 入口参数:
 返 回 值: 无
 ***********************************************************************/
-void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage)
+ void PhaseLock(u32 Start_Fre,u32 End_Fre,u16 Voltage)
 {
 	AnimationPlayFrame(0,25,1); 
 
